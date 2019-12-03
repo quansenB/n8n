@@ -12,14 +12,14 @@ export class Xentral implements ICredentialType {
 		// Properties can be defined exactly in the same way
 		// as node properties.
 		{
-			displayName: 'User',
-			name: 'user',
+			displayName: 'App name / Username',
+			name: 'username',
 			type: 'string' as NodePropertyTypes,
 			default: '',
 		},
 		{
-			displayName: 'Access Token',
-			name: 'accessToken',
+			displayName: 'Initkey / Password',
+			name: 'password',
 			type: 'string' as NodePropertyTypes,
 			default: '',
 		},
