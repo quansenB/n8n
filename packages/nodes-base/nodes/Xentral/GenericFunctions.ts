@@ -44,6 +44,7 @@ export async function xentralRequest(this: IHookFunctions | IExecuteFunctions, m
 	}
 
 	try {
+		console.log(options)
 		const responseData = await this.helpers.request(options);
 
 		if (responseData.success === false) {

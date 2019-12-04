@@ -51,6 +51,9 @@ export class Xentral implements INodeType {
 				default: 'order',
 				description: 'The resource to operate on.',
 			},
+			// ----------------------------------
+			//         operations
+			// ----------------------------------
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -266,6 +269,17 @@ export class Xentral implements INodeType {
 				required: false,
 				description: 'Data of the order to create.',
 			},
+			// ----------------------------------
+			//         addresses
+			// ----------------------------------
+			// ----------------------------------
+			//         addresses:Get
+			// ----------------------------------
+			// TODO
+			// ----------------------------------
+			//         addresses:Get all
+			// ----------------------------------
+			// TODO
 		]
 	};
 
@@ -345,7 +359,8 @@ export class Xentral implements INodeType {
 					body = {
 						data: JSON.parse(this.getNodeParameter('data', i) as string) as object,
 					} as IDataObject;
-
+					//TODO for resource address
+					//Implement operations get all and get by id
 				} else {
 					throw new Error(`The operation '${operation}' is not known!`);
 				}
