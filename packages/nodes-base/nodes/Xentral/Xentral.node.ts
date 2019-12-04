@@ -1,116 +1,106 @@
-import {
-	IExecuteFunctions,
-} from 'n8n-core';
+import { IExecuteFunctions } from "n8n-core";
 
 import {
 	IDataObject,
 	INodeTypeDescription,
 	INodeExecutionData,
-	INodeType,
-} from 'n8n-workflow';
+	INodeType
+} from "n8n-workflow";
 
-import {
-	xentralRequest
-} from './GenericFunctions';
-
+import { xentralRequest } from "./GenericFunctions";
 
 export class Xentral implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Xentral',
-		name: 'xentral',
-		icon: 'file:xentral.png',
-		group: ['transform'],
+		displayName: "Xentral",
+		name: "xentral",
+		icon: "file:xentral.png",
+		group: ["transform"],
 		version: 1,
-		description: 'Xentral CRM Node',
+		description: "Xentral CRM Node",
 		defaults: {
-			name: 'Xentral',
-			color: '#42b8c5',
+			name: "Xentral",
+			color: "#42b8c5"
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: ["main"],
+		outputs: ["main"],
 		credentials: [
 			{
-				name: 'xentral',
-				required: true,
+				name: "xentral",
+				required: true
 			}
 		],
 		properties: [
-			// ----------------------------------
-			//         resources
-			// ----------------------------------
 			{
-				displayName: 'Resource',
-				name: 'resource',
-				type: 'options',
+				displayName: "Resource",
+				name: "resource",
+				type: "options",
 				options: [
 					{
-						name: 'Order',
-						value: 'order',
+						name: "Order",
+						value: "order"
+					},
+					{
+						name: "Addresses",
+						value: "addresses"
 					}
 				],
-				default: 'order',
-				description: 'The resource to operate on.',
+				default: "order",
+				description: "The resource to operate on."
 			},
 			// ----------------------------------
-			//         operations
+			// 						order
 			// ----------------------------------
 			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
+				displayName: "Operation",
+				name: "operation",
+				type: "options",
 				displayOptions: {
 					show: {
-						resource: [
-							'order',
-						],
-					},
+						resource: ["order"]
+					}
 				},
 				options: [
 					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create an order',
+						name: "Create",
+						value: "create",
+						description: "Create an order"
 					},
 					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update an order',
+						name: "Update",
+						value: "update",
+						description: "Update an order"
 					},
 					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get data of an order',
+						name: "Get",
+						value: "get",
+						description: "Get data of an order"
 					},
 					{
-						name: 'Archive',
-						value: 'archive',
-						description: 'Archive an order',
+						name: "Archive",
+						value: "archive",
+						description: "Archive an order"
 					}
 				],
-				default: 'create',
-				description: 'The operation to perform.',
+				default: "create",
+				description: "The operation to perform."
 			},
 
 			// ----------------------------------
 			//         order:create
 			// ----------------------------------
 			{
-				displayName: 'Data',
-				name: 'data',
-				type: 'string',
+				displayName: "Data",
+				name: "data",
+				type: "string",
 				displayOptions: {
 					show: {
-						operation: [
-							'create',
-						],
-						resource: [
-							'order',
-						],
-					},
+						operation: ["create"],
+						resource: ["order"]
+					}
 				},
-				default: '',
+				default: "",
 				required: true,
-				description: 'Data of the order to create.',
+				description: "Data of the order to create."
 			},
 
 			// ----------------------------------
@@ -153,24 +143,19 @@ export class Xentral implements INodeType {
 				description: 'Receipt number of the order to update.',
 			}, */
 			{
-				displayName: 'Data',
-				name: 'data',
-				type: 'string',
+				displayName: "Data",
+				name: "data",
+				type: "string",
 				displayOptions: {
 					show: {
-						operation: [
-							'update',
-						],
-						resource: [
-							'order',
-						],
-					},
+						operation: ["update"],
+						resource: ["order"]
+					}
 				},
-				default: '',
+				default: "",
 				required: false,
-				description: 'Data of the order to create.',
+				description: "Data of the order to create."
 			},
-
 
 			// ----------------------------------
 			//         order:get
@@ -212,22 +197,18 @@ export class Xentral implements INodeType {
 				description: 'Receipt number of the order to get.',
 			}, */
 			{
-				displayName: 'Data',
-				name: 'data',
-				type: 'string',
+				displayName: "Data",
+				name: "data",
+				type: "string",
 				displayOptions: {
 					show: {
-						operation: [
-							'get',
-						],
-						resource: [
-							'order',
-						],
-					},
+						operation: ["get"],
+						resource: ["order"]
+					}
 				},
-				default: '',
+				default: "",
 				required: false,
-				description: 'Data of the order to create.',
+				description: "Data of the order to create."
 			},
 
 			// ----------------------------------
@@ -252,40 +233,86 @@ export class Xentral implements INodeType {
 				description: 'ID of the order to archive.',
 			}, */
 			{
-				displayName: 'Data',
-				name: 'data',
-				type: 'string',
+				displayName: "Data",
+				name: "data",
+				type: "string",
 				displayOptions: {
 					show: {
-						operation: [
-							'archive',
-						],
-						resource: [
-							'order',
-						],
-					},
+						operation: ["archive"],
+						resource: ["order"]
+					}
 				},
-				default: '',
+				default: "",
 				required: false,
-				description: 'Data of the order to create.',
+				description: "Data of the order to create."
 			},
 			// ----------------------------------
 			//         addresses
 			// ----------------------------------
+
+			{
+				displayName: "Operation",
+				name: "operation",
+				type: "options",
+				displayOptions: {
+					show: {
+						resource: ["addresses"]
+					}
+				},
+				options: [
+					{
+						name: "Get All",
+						value: "Get All",
+						description: "Get All"
+					},
+					{
+						name: "Get by ID",
+						value: "Get by ID",
+						description: "Get by ID"
+					}
+				],
+				default: "get by ID",
+				description: "The operation to perform."
+			},
 			// ----------------------------------
-			//         addresses:Get
+			//         addresses:Get All
+			// ---------------------------------
+
+			{
+				displayName: "Data",
+				name: "data",
+				type: "string",
+				displayOptions: {
+					show: {
+						operation: ["get all"],
+						resource: ["addresses"]
+					}
+				},
+				default: "",
+				required: false,
+				description: "Data of the order to create."
+			},
 			// ----------------------------------
-			// TODO
+			//         addresses:Get by ID
 			// ----------------------------------
-			//         addresses:Get all
-			// ----------------------------------
-			// TODO
+			{
+				displayName: "Data",
+				name: "data",
+				type: "string",
+				displayOptions: {
+					show: {
+						operation: ["get by ID"],
+						resource: ["addresses"]
+					}
+				},
+				default: "",
+				required: true,
+				description: "ID of the ${} you want to get"
+			}
 		]
 	};
 
-
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-
 		const items = this.getInputData();
 		const returnData: IDataObject[] = [];
 
@@ -299,33 +326,37 @@ export class Xentral implements INodeType {
 		let endpoint: string;
 
 		for (let i = 0; i < items.length; i++) {
-		
+			requestMethod = "GET";
+			endpoint = "";
 			body = {} as IDataObject;
 
-			resource = this.getNodeParameter('resource', 0) as string;
-			operation = this.getNodeParameter('operation', 0) as string;
+			resource = this.getNodeParameter("resource", 0) as string;
+			operation = this.getNodeParameter("operation", 0) as string;
 
-			if (resource === 'order') {
-				if (operation === 'create') {
+			if (resource === "order") {
+				if (operation === "create") {
 					// ----------------------------------
 					//         create
 					// ----------------------------------
-					requestMethod = 'POST';
-					endpoint = '/api/AuftragCreate';
-					
+					requestMethod = "POST";
+					endpoint = "/api/AuftragCreate";
+
 					body = {
-						data: JSON.parse(this.getNodeParameter('data', i) as string) as object,
+						data: JSON.parse(
+							this.getNodeParameter("data", i) as string
+						) as object
 					} as IDataObject;
-					
-				} else if (operation === 'update') {
+				} else if (operation === "update") {
 					// ----------------------------------
 					//         update
 					// ----------------------------------
-					requestMethod = 'POST';
-					endpoint = '/api/AuftragEdit';
+					requestMethod = "POST";
+					endpoint = "/api/AuftragEdit";
 
 					body = {
-						data: JSON.parse(this.getNodeParameter('data', i) as string) as object,
+						data: JSON.parse(
+							this.getNodeParameter("data", i) as string
+						) as object
 					} as IDataObject;
 
 					/* const orderId = this.getNodeParameter('orderId', i) as string;
@@ -338,41 +369,57 @@ export class Xentral implements INodeType {
 					} else {
 						body.belegnr = receiptNumber; 
 					} */
-				} else if (operation === 'get') {
+				} else if (operation === "get") {
 					// ----------------------------------
 					//         get
 					// ----------------------------------
-					requestMethod = 'POST';
-					endpoint = '/api/AuftragGet';
+					requestMethod = "POST";
+					endpoint = "/api/AuftragGet";
 
 					body = {
-						data: JSON.parse(this.getNodeParameter('data', i) as string) as object,
+						data: JSON.parse(
+							this.getNodeParameter("data", i) as string
+						) as object
 					} as IDataObject;
-
-				} else if (operation === 'archive') {
+				} else if (operation === "archive") {
 					// ----------------------------------
 					//         archive
 					// ----------------------------------
-					requestMethod = 'POST';
-					endpoint = '/api/AuftragArchivieren';
+					requestMethod = "POST";
+					endpoint = "/api/AuftragArchivieren";
 
 					body = {
-						data: JSON.parse(this.getNodeParameter('data', i) as string) as object,
+						data: JSON.parse(
+							this.getNodeParameter("data", i) as string
+						) as object
 					} as IDataObject;
 					//TODO for resource address
 					//Implement operations get all and get by id
 				} else {
 					throw new Error(`The operation '${operation}' is not known!`);
 				}
+			} else if (resource === "addresses") {
+				if (operation === "Get All") {
+					requestMethod = "GET";
+					endpoint = "/api/AuftragCreate";
+				} else if (operation === "Get by ID") {
+					requestMethod = "GET";
 
+					const id = this.getNodeParameter("data", i) as string;
+					endpoint = `/api/AuftragCreate/${id}`;
+				}
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
 			}
 
-			const responseData = await xentralRequest.call(this, requestMethod, endpoint, body);
+			const responseData = await xentralRequest.call(
+				this,
+				requestMethod,
+				endpoint,
+				body
+			);
 
 			returnData.push(responseData as IDataObject);
-
 		}
 
 		return [this.helpers.returnJsonArray(returnData)];
