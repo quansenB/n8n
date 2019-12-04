@@ -16,7 +16,7 @@ export class Xentral implements ICredentialType {
 			name: 'url',
 			type: 'string' as NodePropertyTypes,
 			default: '',
-			placeholder: 'https://examplexentralserver.exampleservice.com',
+			placeholder: 'https://examplexentralserver.yoururl.com',
 		},
 		{
 			displayName: 'App name / Username',
