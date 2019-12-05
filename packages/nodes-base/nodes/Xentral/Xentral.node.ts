@@ -29,6 +29,10 @@ export class Xentral implements INodeType {
 				required: true
 			}
 		],
+
+		// ----------------------------------
+		// 						Resource
+		// ----------------------------------
 		properties: [
 			{
 				displayName: "Resource",
@@ -271,43 +275,43 @@ export class Xentral implements INodeType {
 						description: "Get by ID"
 					}
 				],
-				default: "get by ID",
+				default: "Get by ID",
 				description: "The operation to perform."
 			},
 			// ----------------------------------
 			//         addresses:Get All
 			// ---------------------------------
 
-			{
-				displayName: "Data",
-				name: "data",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["get all"],
-						resource: ["addresses"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "Data of the order to create."
-			},
+			// {
+			// 	displayName: "Data",
+			// 	name: "data",
+			// 	type: "string",
+			// 	displayOptions: {
+			// 		show: {
+			// 			operation: ["get all"],
+			// 			resource: ["addresses"]
+			// 		}
+			// 	},
+			// 	default: "",
+			// 	required: false,
+			// 	description: "Data of the order to create."
+			// },
 			// ----------------------------------
 			//         addresses:Get by ID
 			// ----------------------------------
 			{
-				displayName: "Data",
-				name: "data",
-				type: "string",
+				displayName: "ID",
+				name: "id",
+				type: "number",
 				displayOptions: {
 					show: {
-						operation: ["get by ID"],
+						operation: ["Get by ID"],
 						resource: ["addresses"]
 					}
 				},
-				default: "",
+				default: 0,
 				required: true,
-				description: "ID of the ${} you want to get"
+				description: "Get a single address"
 			}
 		]
 	};
@@ -401,12 +405,12 @@ export class Xentral implements INodeType {
 			} else if (resource === "addresses") {
 				if (operation === "Get All") {
 					requestMethod = "GET";
-					endpoint = "/api/AuftragCreate";
+					endpoint = "/api/v1/adressen";
 				} else if (operation === "Get by ID") {
 					requestMethod = "GET";
 
-					const id = this.getNodeParameter("data", i) as string;
-					endpoint = `/api/AuftragCreate/${id}`;
+					const id = this.getNodeParameter("id", i) as number;
+					endpoint = `/api/v1/adressen/${id}`;
 				}
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
