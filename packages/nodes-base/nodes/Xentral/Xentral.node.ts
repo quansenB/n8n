@@ -267,7 +267,7 @@ export class Xentral implements INodeType {
 					{
 						name: "Get All",
 						value: "Get All",
-						description: "Get All"
+						description: "Get the address list"
 					},
 					{
 						name: "Get by ID",
@@ -276,26 +276,9 @@ export class Xentral implements INodeType {
 					}
 				],
 				default: "Get by ID",
-				description: "The operation to perform."
+				description: "retrieve addresses"
 			},
-			// ----------------------------------
-			//         addresses:Get All
-			// ---------------------------------
 
-			// {
-			// 	displayName: "Data",
-			// 	name: "data",
-			// 	type: "string",
-			// 	displayOptions: {
-			// 		show: {
-			// 			operation: ["get all"],
-			// 			resource: ["addresses"]
-			// 		}
-			// 	},
-			// 	default: "",
-			// 	required: false,
-			// 	description: "Data of the order to create."
-			// },
 			// ----------------------------------
 			//         addresses:Get by ID
 			// ----------------------------------

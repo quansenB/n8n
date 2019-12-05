@@ -82,16 +82,7 @@ npm install -g lerna
 ### Actual n8n setup
 
 Now that everything n8n requires to run is installed the actual n8n code can be
-checked out and set up:
-
-1. Clone the repository
-	```
-	git clone https://github.com/n8n-io/n8n.git
-	```
-
-1. Go into repository folder
-	```
-	cd n8n
+checked out and set up:o
 	```
 
 1. Install all dependencies of all modules and link them together:
