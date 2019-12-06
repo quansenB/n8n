@@ -31,7 +31,7 @@ export class Xentral implements INodeType {
 		],
 
 		// ----------------------------------
-		// 						Resource
+		// 				Resource
 		// ----------------------------------
 		properties: [
 			{
@@ -52,7 +52,7 @@ export class Xentral implements INodeType {
 				description: "The resource to operate on."
 			},
 			// ----------------------------------
-			// 						order
+			// 				order
 			// ----------------------------------
 			{
 				displayName: "Operation",
@@ -110,42 +110,6 @@ export class Xentral implements INodeType {
 			// ----------------------------------
 			//         order:update
 			// ----------------------------------
-			/* {
-				displayName: 'Order ID',
-				name: 'orderId',
-				type: 'number',
-				displayOptions: {
-					show: {
-						operation: [
-							'update',
-						],
-						resource: [
-							'order',
-						],
-					},
-				},
-				default: 0,
-				required: true,
-				description: 'ID of the order to update.',
-			},
-			{
-				displayName: 'Receipt Number',
-				name: 'receiptNumber',
-				type: 'number',
-				displayOptions: {
-					show: {
-						operation: [
-							'update',
-						],
-						resource: [
-							'order',
-						],
-					},
-				},
-				default: 0,
-				required: false,
-				description: 'Receipt number of the order to update.',
-			}, */
 			{
 				displayName: "Data",
 				name: "data",
@@ -163,43 +127,7 @@ export class Xentral implements INodeType {
 
 			// ----------------------------------
 			//         order:get
-			// ----------------------------------
-			/* {
-				displayName: 'Order ID',
-				name: 'orderId',
-				type: 'number',
-				displayOptions: {
-					show: {
-						operation: [
-							'get',
-						],
-						resource: [
-							'order',
-						],
-					},
-				},
-				default: 0,
-				required: false,
-				description: 'ID of the order to get.',
-			},
-			{
-				displayName: 'Receipt Number',
-				name: 'receiptNumber',
-				type: 'number',
-				displayOptions: {
-					show: {
-						operation: [
-							'get',
-						],
-						resource: [
-							'order',
-						],
-					},
-				},
-				default: 0,
-				required: false,
-				description: 'Receipt number of the order to get.',
-			}, */
+			// ----------------------------------			
 			{
 				displayName: "Data",
 				name: "data",
@@ -216,44 +144,8 @@ export class Xentral implements INodeType {
 			},
 
 			// ----------------------------------
-			//         order:archive
-			// ----------------------------------
-			/* {
-				displayName: 'Order ID',
-				name: 'orderId',
-				type: 'number',
-				displayOptions: {
-					show: {
-						operation: [
-							'archive',
-						],
-						resource: [
-							'order',
-						],
-					},
-				},
-				default: 0,
-				required: true,
-				description: 'ID of the order to archive.',
-			}, */
-			{
-				displayName: "Data",
-				name: "data",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["archive"],
-						resource: ["order"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "Data of the order to create."
-			},
-			// ----------------------------------
 			//         addresses
 			// ----------------------------------
-
 			{
 				displayName: "Operation",
 				name: "operation",
@@ -266,21 +158,21 @@ export class Xentral implements INodeType {
 				options: [
 					{
 						name: "Get All",
-						value: "Get All",
+						value: "getAll",
 						description: "Get the address list"
 					},
 					{
 						name: "Get by ID",
-						value: "Get by ID",
-						description: "Get by ID"
+						value: "getById",
+						description: "Get single address by its ID"
 					}
 				],
-				default: "Get by ID",
+				default: "getById",
 				description: "retrieve addresses"
 			},
 
 			// ----------------------------------
-			//         addresses:Get by ID
+			//         addresses:getById
 			// ----------------------------------
 			{
 				displayName: "ID",
@@ -288,7 +180,7 @@ export class Xentral implements INodeType {
 				type: "number",
 				displayOptions: {
 					show: {
-						operation: ["Get by ID"],
+						operation: ["getById"],
 						resource: ["addresses"]
 					}
 				},
@@ -333,6 +225,7 @@ export class Xentral implements INodeType {
 							this.getNodeParameter("data", i) as string
 						) as object
 					} as IDataObject;
+
 				} else if (operation === "update") {
 					// ----------------------------------
 					//         update
@@ -346,16 +239,6 @@ export class Xentral implements INodeType {
 						) as object
 					} as IDataObject;
 
-					/* const orderId = this.getNodeParameter('orderId', i) as string;
-					const receiptNumber = this.getNodeParameter('receiptNumber', i) as string;
-
-					if (orderId === "0" && receiptNumber === "0") {
-						throw new Error('Either order ID or receipt number must be selected');
-					} else if (orderId !== "0") {
-						body.id = orderId;
-					} else {
-						body.belegnr = receiptNumber; 
-					} */
 				} else if (operation === "get") {
 					// ----------------------------------
 					//         get
@@ -368,33 +251,25 @@ export class Xentral implements INodeType {
 							this.getNodeParameter("data", i) as string
 						) as object
 					} as IDataObject;
-				} else if (operation === "archive") {
-					// ----------------------------------
-					//         archive
-					// ----------------------------------
-					requestMethod = "POST";
-					endpoint = "/api/AuftragArchivieren";
 
-					body = {
-						data: JSON.parse(
-							this.getNodeParameter("data", i) as string
-						) as object
-					} as IDataObject;
-					//TODO for resource address
-					//Implement operations get all and get by id
 				} else {
 					throw new Error(`The operation '${operation}' is not known!`);
 				}
+
 			} else if (resource === "addresses") {
-				if (operation === "Get All") {
+				if (operation === "getAll") {
 					requestMethod = "GET";
+
 					endpoint = "/api/v1/adressen";
-				} else if (operation === "Get by ID") {
+
+				} else if (operation === "getById") {
 					requestMethod = "GET";
 
 					const id = this.getNodeParameter("id", i) as number;
 					endpoint = `/api/v1/adressen/${id}`;
+
 				}
+				
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
 			}
