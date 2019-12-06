@@ -1,8 +1,8 @@
-import { IExecuteFunctions, IHookFunctions } from "n8n-core";
+import { IExecuteFunctions, IHookFunctions } from 'n8n-core';
 
-import { IDataObject } from "n8n-workflow";
+import { IDataObject } from 'n8n-workflow';
 
-import { OptionsWithUri } from "request";
+import { OptionsWithUri } from 'request';
 
 /**
  * Make an API request to Xentral
@@ -20,9 +20,9 @@ export async function xentralRequest(
 	body: IDataObject
 ): Promise<any> {
 	// tslint:disable-line:no-any
-	const credentials = this.getCredentials("xentral");
+	const credentials = this.getCredentials('xentral');
 	if (credentials === undefined) {
-		throw new Error("No credentials got returned!");
+		throw new Error('No credentials got returned!');
 	}
 
 	const options: OptionsWithUri = {
@@ -31,7 +31,7 @@ export async function xentralRequest(
 		uri: `${credentials.url}${endpoint}`,
 		json: true,
 		rejectUnauthorized: true,
-		qs: { json: "true" },
+		qs: { json: 'true' },
 		auth: {
 			user: credentials.username as string,
 			pass: credentials.password as string,
@@ -57,7 +57,7 @@ export async function xentralRequest(
 	} catch (error) {
 		if (error.statusCode === 403) {
 			// Return a clear error
-			throw new Error("The Xentral credentials are not valid!");
+			throw new Error('The Xentral credentials are not valid!');
 		}
 
 		// If that data does not exist for some reason return the actual error

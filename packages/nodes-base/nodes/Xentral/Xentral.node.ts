@@ -30,10 +30,11 @@ export class Xentral implements INodeType {
 			}
 		],
 
-		// ----------------------------------
-		// 				Resource
-		// ----------------------------------
+		
 		properties: [
+			// ----------------------------------
+			// 				Resources
+			// ----------------------------------
 			{
 				displayName: "Resource",
 				name: "resource",
@@ -51,6 +52,7 @@ export class Xentral implements INodeType {
 				default: "order",
 				description: "The resource to operate on."
 			},
+
 			// ----------------------------------
 			// 				order
 			// ----------------------------------
@@ -78,11 +80,6 @@ export class Xentral implements INodeType {
 						name: "Get",
 						value: "get",
 						description: "Get data of an order"
-					},
-					{
-						name: "Archive",
-						value: "archive",
-						description: "Archive an order"
 					}
 				],
 				default: "create",
