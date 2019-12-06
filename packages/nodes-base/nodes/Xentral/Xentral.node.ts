@@ -43,10 +43,10 @@ export class Xentral implements INodeType {
 						name: "Order",
 						value: "order"
 					},
-					{
+					/* {
 						name: "Addresses",
 						value: "addresses"
-					}
+					} */
 				],
 				default: "order",
 				description: "The resource to operate on."
@@ -269,7 +269,7 @@ export class Xentral implements INodeType {
 					endpoint = `/api/v1/adressen/${id}`;
 
 				}
-				
+
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
 			}
