@@ -44,7 +44,6 @@ export async function xentralRequest(
 	}
 
 	try {
-		console.log(options);
 		const responseData = await this.helpers.request(options);
 
 		if (responseData.success === false) {
