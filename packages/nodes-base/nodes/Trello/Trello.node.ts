@@ -1,12 +1,16 @@
-import { IExecuteFunctions } from 'n8n-core';
+import {
+	IExecuteFunctions,
+} from 'n8n-core';
 import {
 	IDataObject,
 	INodeTypeDescription,
 	INodeExecutionData,
-	INodeType
+	INodeType,
 } from 'n8n-workflow';
 
-import { apiRequest } from './GenericFunctions';
+import {
+	apiRequest,
+} from './GenericFunctions';
 
 export class Trello implements INodeType {
 	description: INodeTypeDescription = {
@@ -19,14 +23,14 @@ export class Trello implements INodeType {
 		description: 'Create, change and delete boards and cards',
 		defaults: {
 			name: 'Trello',
-			color: '#026aa7'
+			color: '#026aa7',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [
 			{
 				name: 'trelloApi',
-				required: true
+				required: true,
 			}
 		],
 		properties: [
@@ -37,20 +41,22 @@ export class Trello implements INodeType {
 				options: [
 					{
 						name: 'Board',
-						value: 'board'
+						value: 'board',
 					},
 					{
 						name: 'Card',
-						value: 'card'
+						value: 'card',
 					},
 					{
 						name: 'List',
-						value: 'list'
-					}
+						value: 'list',
+					},
 				],
 				default: 'card',
-				description: 'The resource to operate on.'
+				description: 'The resource to operate on.',
 			},
+
+
 
 			// ----------------------------------
 			//         board
@@ -61,33 +67,35 @@ export class Trello implements INodeType {
 				type: 'options',
 				displayOptions: {
 					show: {
-						resource: ['board']
-					}
+						resource: [
+							'board',
+						],
+					},
 				},
 				options: [
 					{
 						name: 'Create',
 						value: 'create',
-						description: 'Create a new board'
+						description: 'Create a new board',
 					},
 					{
 						name: 'Delete',
 						value: 'delete',
-						description: 'Delete a board'
+						description: 'Delete a board',
 					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get the data of a board'
+						description: 'Get the data of a board',
 					},
 					{
 						name: 'Update',
 						value: 'update',
-						description: 'Update a board'
-					}
+						description: 'Update a board',
+					},
 				],
 				default: 'create',
-				description: 'The operation to perform.'
+				description: 'The operation to perform.',
 			},
 
 			// ----------------------------------
@@ -102,11 +110,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['board']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
-				description: 'The name of the board'
+				description: 'The name of the board',
 			},
 			{
 				displayName: 'Description',
@@ -115,11 +127,15 @@ export class Trello implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['board']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
-				description: 'The description of the board'
+				description: 'The description of the board',
 			},
 			{
 				displayName: 'Additional Fields',
@@ -128,9 +144,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['board']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -141,24 +161,22 @@ export class Trello implements INodeType {
 						options: [
 							{
 								name: 'Pirate',
-								value: 'pirate'
+								value: 'pirate',
 							},
 							{
 								name: 'Regular',
-								value: 'regular'
-							}
+								value: 'regular',
+							},
 						],
 						default: 'regular',
-						description:
-							'Determines the type of card aging that should take place on the board if card aging is enabled.'
+						description: 'Determines the type of card aging that should take place on the board if card aging is enabled.',
 					},
 					{
 						displayName: 'Background',
 						name: 'prefs_background',
 						type: 'string',
 						default: 'blue',
-						description:
-							'The id of a custom background or one of: blue, orange, green, red, purple, pink, lime, sky, grey.'
+						description: 'The id of a custom background or one of: blue, orange, green, red, purple, pink, lime, sky, grey.',
 					},
 					{
 						displayName: 'Comments',
@@ -167,34 +185,34 @@ export class Trello implements INodeType {
 						options: [
 							{
 								name: 'Disabled',
-								value: 'disabled'
+								value: 'disabled',
 							},
 							{
 								name: 'Members',
-								value: 'members'
+								value: 'members',
 							},
 							{
 								name: 'Observers',
-								value: 'observers'
+								value: 'observers',
 							},
 							{
 								name: 'Organization',
-								value: 'org'
+								value: 'org',
 							},
 							{
 								name: 'Public',
-								value: 'public'
-							}
+								value: 'public',
+							},
 						],
 						default: 'members',
-						description: 'Who can comment on cards on this board.'
+						description: 'Who can comment on cards on this board.',
 					},
 					{
 						displayName: 'Covers',
 						name: 'prefs_cardCovers',
 						type: 'boolean',
 						default: true,
-						description: 'Determines whether card covers are enabled.'
+						description: 'Determines whether card covers are enabled.',
 					},
 					{
 						displayName: 'Invitations',
@@ -203,47 +221,43 @@ export class Trello implements INodeType {
 						options: [
 							{
 								name: 'Admins',
-								value: 'admins'
+								value: 'admins',
 							},
 							{
 								name: 'Members',
-								value: 'members'
-							}
+								value: 'members',
+							},
 						],
 						default: 'members',
-						description:
-							'Determines what types of members can invite users to join.'
+						description: 'Determines what types of members can invite users to join.',
 					},
 					{
 						displayName: 'Keep From Source',
 						name: 'keepFromSource',
 						type: 'string',
 						default: 'none',
-						description:
-							'To keep cards from the original board pass in the value cards.'
+						description: 'To keep cards from the original board pass in the value cards.',
 					},
 					{
 						displayName: 'Labels',
 						name: 'defaultLabels',
 						type: 'boolean',
 						default: true,
-						description: 'Determines whether to use the default set of labels.'
+						description: 'Determines whether to use the default set of labels.',
 					},
 					{
 						displayName: 'Lists',
 						name: 'defaultLists',
 						type: 'boolean',
 						default: true,
-						description:
-							'Determines whether to add the default set of lists to a board(To Do, Doing, Done).It is ignored if idBoardSource is provided.'
+						description: 'Determines whether to add the default set of lists to a board(To Do, Doing, Done).It is ignored if idBoardSource is provided.',
 					},
 					{
 						displayName: 'Organization ID',
 						name: 'idOrganization',
 						type: 'string',
 						default: '',
-						description:
-							'The id or name of the team the board should belong to.'
+						description: 'The id or name of the team the board should belong to.',
 					},
 					{
 						displayName: 'Permission Level',
@@ -252,19 +266,19 @@ export class Trello implements INodeType {
 						options: [
 							{
 								name: 'Organization',
-								value: 'org'
+								value: 'org',
 							},
 							{
 								name: 'Private',
-								value: 'private'
+								value: 'private',
 							},
 							{
 								name: 'Public',
-								value: 'public'
-							}
+								value: 'public',
+							},
 						],
 						default: 'private',
-						description: 'The permissions level of the board.'
+						description: 'The permissions level of the board.',
 					},
 					{
 						displayName: 'Power Ups',
@@ -273,43 +287,41 @@ export class Trello implements INodeType {
 						options: [
 							{
 								name: 'All',
-								value: 'all'
+								value: 'all',
 							},
 							{
 								name: 'Calendar',
-								value: 'calendar'
+								value: 'calendar',
 							},
 							{
 								name: 'Card Aging',
-								value: 'cardAging'
+								value: 'cardAging',
 							},
 							{
 								name: 'Recap',
-								value: 'recap'
+								value: 'recap',
 							},
 							{
 								name: 'Voting',
-								value: 'voting'
-							}
+								value: 'voting',
+							},
 						],
 						default: 'all',
-						description:
-							'The Power-Ups that should be enabled on the new board.'
+						description: 'The Power-Ups that should be enabled on the new board.',
 					},
 					{
 						displayName: 'Self Join',
 						name: 'prefs_selfJoin',
 						type: 'boolean',
 						default: true,
-						description:
-							'Determines whether users can join the boards themselves or whether they have to be invited.'
+						description: 'Determines whether users can join the boards themselves or whether they have to be invited.',
 					},
 					{
 						displayName: 'Source IDs',
 						name: 'idBoardSource',
 						type: 'string',
 						default: '',
-						description: 'The id of a board to copy into the new board.'
+						description: 'The id of a board to copy into the new board.',
 					},
 					{
 						displayName: 'Voting',
@@ -318,29 +330,29 @@ export class Trello implements INodeType {
 						options: [
 							{
 								name: 'Disabled',
-								value: 'disabled'
+								value: 'disabled',
 							},
 							{
 								name: 'Members',
-								value: 'members'
+								value: 'members',
 							},
 							{
 								name: 'Observers',
-								value: 'observers'
+								value: 'observers',
 							},
 							{
 								name: 'Organization',
-								value: 'org'
+								value: 'org',
 							},
 							{
 								name: 'Public',
-								value: 'public'
-							}
+								value: 'public',
+							},
 						],
 						default: 'disabled',
-						description: 'Who can vote on this board.'
-					}
-				]
+						description: 'Who can vote on this board.',
+					},
+				],
 			},
 
 			// ----------------------------------
@@ -354,11 +366,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['delete'],
-						resource: ['board']
-					}
+						operation: [
+							'delete',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
-				description: 'The ID of the board to delete.'
+				description: 'The ID of the board to delete.',
 			},
 
 			// ----------------------------------
@@ -372,11 +388,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['get'],
-						resource: ['board']
-					}
+						operation: [
+							'get',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
-				description: 'The ID of the board to get.'
+				description: 'The ID of the board to get.',
 			},
 			{
 				displayName: 'Additional Fields',
@@ -385,9 +405,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['get'],
-						resource: ['board']
-					}
+						operation: [
+							'get',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -396,18 +420,16 @@ export class Trello implements INodeType {
 						name: 'fields',
 						type: 'string',
 						default: 'all',
-						description:
-							'Fields to return. Either "all" or a comma-separated list:<br />closed, dateLastActivity, dateLastView, desc, descData,<br />idOrganization, invitations, invited, labelNames, memberships,<br />name, pinned, powerUps, prefs, shortLink, shortUrl,<br />starred, subscribed, url'
+						description: 'Fields to return. Either "all" or a comma-separated list:<br />closed, dateLastActivity, dateLastView, desc, descData,<br />idOrganization, invitations, invited, labelNames, memberships,<br />name, pinned, powerUps, prefs, shortLink, shortUrl,<br />starred, subscribed, url',
 					},
 					{
 						displayName: 'Plugin Data',
 						name: 'pluginData',
 						type: 'boolean',
 						default: false,
-						description:
-							'Whether to include pluginData on the card with the response.'
-					}
-				]
+						description: 'Whether to include pluginData on the card with the response.',
+					},
+				],
 			},
 
 			// ----------------------------------
@@ -421,11 +443,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['update'],
-						resource: ['board']
-					}
+						operation: [
+							'update',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
-				description: 'The ID of the board to update.'
+				description: 'The ID of the board to update.',
 			},
 			{
 				displayName: 'Update Fields',
@@ -434,9 +460,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['update'],
-						resource: ['board']
-					}
+						operation: [
+							'update',
+						],
+						resource: [
+							'board',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -445,38 +475,40 @@ export class Trello implements INodeType {
 						name: 'closed',
 						type: 'boolean',
 						default: false,
-						description: 'Whether the board is closed.'
+						description: 'Whether the board is closed.',
 					},
 					{
 						displayName: 'Description',
 						name: 'desc',
 						type: 'string',
 						default: '',
-						description: 'New description of the board'
+						description: 'New description of the board',
 					},
 					{
 						displayName: 'Name',
 						name: 'name',
 						type: 'string',
 						default: '',
-						description: 'New name of the board'
+						description: 'New name of the board',
 					},
 					{
 						displayName: 'Organization ID',
 						name: 'idOrganization',
 						type: 'string',
 						default: '',
-						description: 'The id of the team the board should be moved to.'
+						description: 'The id of the team the board should be moved to.',
 					},
 					{
 						displayName: 'Subscribed',
 						name: 'subscribed',
 						type: 'boolean',
 						default: false,
-						description: 'Whether the acting user is subscribed to the board.'
-					}
-				]
+						description: 'Whether the acting user is subscribed to the board.',
+					},
+				],
 			},
+
+
 
 			// ----------------------------------
 			//         card
@@ -487,33 +519,35 @@ export class Trello implements INodeType {
 				type: 'options',
 				displayOptions: {
 					show: {
-						resource: ['card']
-					}
+						resource: [
+							'card',
+						],
+					},
 				},
 				options: [
 					{
 						name: 'Create',
 						value: 'create',
-						description: 'Create a new card'
+						description: 'Create a new card',
 					},
 					{
 						name: 'Delete',
 						value: 'delete',
-						description: 'Delete a card'
+						description: 'Delete a card',
 					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get the data of a card'
+						description: 'Get the data of a card',
 					},
 					{
 						name: 'Update',
 						value: 'update',
-						description: 'Update a card'
-					}
+						description: 'Update a card',
+					},
 				],
 				default: 'create',
-				description: 'The operation to perform.'
+				description: 'The operation to perform.',
 			},
 
 			// ----------------------------------
@@ -527,11 +561,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['card']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
-				description: 'The id of the list to create card in'
+				description: 'The id of the list to create card in',
 			},
 			{
 				displayName: 'Name',
@@ -542,11 +580,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['card']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
-				description: 'The name of the card'
+				description: 'The name of the card',
 			},
 			{
 				displayName: 'Description',
@@ -555,11 +597,15 @@ export class Trello implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['card']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
-				description: 'The description of the card'
+				description: 'The description of the card',
 			},
 			{
 				displayName: 'Additional Fields',
@@ -568,9 +614,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['card']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -579,61 +629,58 @@ export class Trello implements INodeType {
 						name: 'due',
 						type: 'dateTime',
 						default: '',
-						description: 'A due date for the card.'
+						description: 'A due date for the card.',
 					},
 					{
 						displayName: 'Due Complete',
 						name: 'dueComplete',
 						type: 'boolean',
 						default: false,
-						description: 'If the card is completed.'
+						description: 'If the card is completed.',
 					},
 					{
 						displayName: 'Position',
 						name: 'pos',
 						type: 'string',
 						default: 'bottom',
-						description:
-							'The position of the new card. top, bottom, or a positive float.'
+						description: 'The position of the new card. top, bottom, or a positive float.',
 					},
 					{
 						displayName: 'Member IDs',
 						name: 'idMembers',
 						type: 'string',
 						default: '',
-						description:
-							'Comma-separated list of member IDs to add to the card.'
+						description: 'Comma-separated list of member IDs to add to the card.',
 					},
 					{
 						displayName: 'Label IDs',
 						name: 'idLabels',
 						type: 'string',
 						default: '',
-						description: 'Comma-separated list of label IDs to add to the card.'
+						description: 'Comma-separated list of label IDs to add to the card.',
 					},
 					{
 						displayName: 'URL Source',
 						name: 'urlSource',
 						type: 'string',
 						default: '',
-						description: 'A source URL to attach to card.'
+						description: 'A source URL to attach to card.',
 					},
 					{
 						displayName: 'Source ID',
 						name: 'idCardSource',
 						type: 'string',
 						default: '',
-						description: 'The ID of a card to copy into the new card.'
+						description: 'The ID of a card to copy into the new card.',
 					},
 					{
 						displayName: 'Keep from source',
 						name: 'keepFromSource',
 						type: 'string',
 						default: 'all',
-						description:
-							'If using idCardSource you can specify which properties to copy over. all or comma-separated list of: attachments, checklists, comments, due, labels, members, stickers'
-					}
-				]
+						description: 'If using idCardSource you can specify which properties to copy over. all or comma-separated list of: attachments, checklists, comments, due, labels, members, stickers',
+					},
+				],
 			},
 
 			// ----------------------------------
@@ -647,11 +694,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['delete'],
-						resource: ['card']
-					}
+						operation: [
+							'delete',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
-				description: 'The ID of the card to delete.'
+				description: 'The ID of the card to delete.',
 			},
 
 			// ----------------------------------
@@ -665,11 +716,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['get'],
-						resource: ['card']
-					}
+						operation: [
+							'get',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
-				description: 'The ID of the card to get.'
+				description: 'The ID of the card to get.',
 			},
 			{
 				displayName: 'Additional Fields',
@@ -678,9 +733,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['get'],
-						resource: ['card']
-					}
+						operation: [
+							'get',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -689,71 +748,65 @@ export class Trello implements INodeType {
 						name: 'fields',
 						type: 'string',
 						default: 'all',
-						description:
-							'Fields to return. Either "all" or a comma-separated list:<br />badges, checkItemStates, closed, dateLastActivity, desc,<br />descData, due, email, idBoard, idChecklists, idLabels, idList,<br />idMembers, idShort, idAttachmentCover, manualCoverAttachment<br />, labels, name, pos, shortUrl, url'
+						description: 'Fields to return. Either "all" or a comma-separated list:<br />badges, checkItemStates, closed, dateLastActivity, desc,<br />descData, due, email, idBoard, idChecklists, idLabels, idList,<br />idMembers, idShort, idAttachmentCover, manualCoverAttachment<br />, labels, name, pos, shortUrl, url',
 					},
 					{
 						displayName: 'Board',
 						name: 'board',
 						type: 'boolean',
 						default: false,
-						description: 'Whether to return the board object the card is on.'
+						description: 'Whether to return the board object the card is on.',
 					},
 					{
 						displayName: 'Board Fields',
 						name: 'board_fields',
 						type: 'string',
 						default: 'all',
-						description:
-							'Fields to return. Either "all" or a comma-separated list:<br />name, desc, descData, closed, idOrganization, pinned, url, prefs'
+						description: 'Fields to return. Either "all" or a comma-separated list:<br />name, desc, descData, closed, idOrganization, pinned, url, prefs',
 					},
 					{
 						displayName: 'Custom Field Items',
 						name: 'customFieldItems',
 						type: 'boolean',
 						default: false,
-						description: 'Whether to include the customFieldItems.'
+						description: 'Whether to include the customFieldItems.',
 					},
 					{
 						displayName: 'Members',
 						name: 'members',
 						type: 'boolean',
 						default: false,
-						description:
-							'Whether to return member objects for members on the card.'
+						description: 'Whether to return member objects for members on the card.',
 					},
 					{
 						displayName: 'Member Fields',
 						name: 'member_fields',
 						type: 'string',
 						default: 'all',
-						description:
-							'Fields to return. Either "all" or a comma-separated list:<br />avatarHash, fullName, initials, username'
+						description: 'Fields to return. Either "all" or a comma-separated list:<br />avatarHash, fullName, initials, username',
 					},
 					{
 						displayName: 'Plugin Data',
 						name: 'pluginData',
 						type: 'boolean',
 						default: false,
-						description:
-							'Whether to include pluginData on the card with the response.'
+						description: 'Whether to include pluginData on the card with the response.',
 					},
 					{
 						displayName: 'Stickers',
 						name: 'stickers',
 						type: 'boolean',
 						default: false,
-						description: 'Whether to include sticker models with the response.'
+						description: 'Whether to include sticker models with the response.',
 					},
 					{
 						displayName: 'Sticker Fields',
 						name: 'sticker_fields',
 						type: 'string',
 						default: 'all',
-						description:
-							'Fields to return. Either "all" or a comma-separated list of sticker fields.'
-					}
-				]
+						description: 'Fields to return. Either "all" or a comma-separated list of sticker fields.',
+					},
+				],
 			},
 
 			// ----------------------------------
@@ -767,11 +820,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['update'],
-						resource: ['card']
-					}
+						operation: [
+							'update',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
-				description: 'The ID of the card to update.'
+				description: 'The ID of the card to update.',
 			},
 			{
 				displayName: 'Update Fields',
@@ -780,9 +837,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['update'],
-						resource: ['card']
-					}
+						operation: [
+							'update',
+						],
+						resource: [
+							'card',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -791,89 +852,89 @@ export class Trello implements INodeType {
 						name: 'idAttachmentCover',
 						type: 'string',
 						default: '',
-						description:
-							'The ID of the image attachment the card should use as its cover, or null for none.'
+						description: 'The ID of the image attachment the card should use as its cover, or null for none.',
 					},
 					{
 						displayName: 'Board ID',
 						name: 'idBoard',
 						type: 'string',
 						default: '',
-						description: 'The ID of the board the card should be on.'
+						description: 'The ID of the board the card should be on.',
 					},
 					{
 						displayName: 'Closed',
 						name: 'closed',
 						type: 'boolean',
 						default: false,
-						description: 'Whether the board is closed.'
+						description: 'Whether the board is closed.',
 					},
 					{
 						displayName: 'Description',
 						name: 'desc',
 						type: 'string',
 						default: '',
-						description: 'New description of the board.'
+						description: 'New description of the board.',
 					},
 					{
 						displayName: 'Due Date',
 						name: 'due',
 						type: 'dateTime',
 						default: '',
-						description: 'A due date for the card.'
+						description: 'A due date for the card.',
 					},
 					{
 						displayName: 'Due Complete',
 						name: 'dueComplete',
 						type: 'boolean',
 						default: false,
-						description: 'If the card is completed.'
+						description: 'If the card is completed.',
 					},
 					{
 						displayName: 'Label IDs',
 						name: 'idLabels',
 						type: 'string',
 						default: '',
-						description: 'Comma-separated list of label IDs to set on card.'
+						description: 'Comma-separated list of label IDs to set on card.',
 					},
 					{
 						displayName: 'List ID',
 						name: 'idList',
 						type: 'string',
 						default: '',
-						description: 'The ID of the list the card should be in.'
+						description: 'The ID of the list the card should be in.',
 					},
 					{
 						displayName: 'Member IDs',
 						name: 'idMembers',
 						type: 'string',
 						default: '',
-						description: 'Comma-separated list of member IDs to set on card.'
+						description: 'Comma-separated list of member IDs to set on card.',
 					},
 					{
 						displayName: 'Name',
 						name: 'name',
 						type: 'string',
 						default: '',
-						description: 'New name of the board'
+						description: 'New name of the board',
 					},
 					{
 						displayName: 'Position',
 						name: 'pos',
 						type: 'string',
 						default: 'bottom',
-						description:
-							'The position of the card. top, bottom, or a positive float.'
+						description: 'The position of the card. top, bottom, or a positive float.',
 					},
 					{
 						displayName: 'Subscribed',
 						name: 'subscribed',
 						type: 'boolean',
 						default: false,
-						description: 'Whether the acting user is subscribed to the board.'
-					}
-				]
+						description: 'Whether the acting user is subscribed to the board.',
+					},
+				],
 			},
+
+
 
 			// ----------------------------------
 			//         list
@@ -884,33 +945,35 @@ export class Trello implements INodeType {
 				type: 'options',
 				displayOptions: {
 					show: {
-						resource: ['list']
-					}
+						resource: [
+							'list',
+						],
+					},
 				},
 				options: [
 					{
 						name: 'Archive',
 						value: 'archive',
-						description: 'Archive/Unarchive a list'
+						description: 'Archive/Unarchive a list',
 					},
 					{
 						name: 'Create',
 						value: 'create',
-						description: 'Create a new list'
+						description: 'Create a new list',
 					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get the data of a list'
+						description: 'Get the data of a list',
 					},
 					{
 						name: 'Update',
 						value: 'update',
-						description: 'Update a list'
-					}
+						description: 'Update a list',
+					},
 				],
 				default: 'create',
-				description: 'The operation to perform.'
+				description: 'The operation to perform.',
 			},
 
 			// ----------------------------------
@@ -924,11 +987,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['archive'],
-						resource: ['list']
-					}
+						operation: [
+							'archive',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
-				description: 'The ID of the list to archive or unarchive.'
+				description: 'The ID of the list to archive or unarchive.',
 			},
 			{
 				displayName: 'Archive',
@@ -937,11 +1004,15 @@ export class Trello implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						operation: ['archive'],
-						resource: ['list']
-					}
+						operation: [
+							'archive',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
-				description: 'If the list should be archived or unarchived.'
+				description: 'If the list should be archived or unarchived.',
 			},
 
 			// ----------------------------------
@@ -955,11 +1026,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['list']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
-				description: 'The ID of the board the list should be created in'
+				description: 'The ID of the board the list should be created in',
 			},
 			{
 				displayName: 'Name',
@@ -970,11 +1045,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['list']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
-				description: 'The name of the list'
+				description: 'The name of the list',
 			},
 			{
 				displayName: 'Additional Fields',
@@ -983,9 +1062,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['create'],
-						resource: ['list']
-					}
+						operation: [
+							'create',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -994,17 +1077,16 @@ export class Trello implements INodeType {
 						name: 'idListSource',
 						type: 'string',
 						default: '',
-						description: 'ID of the list to copy into the new list.'
+						description: 'ID of the list to copy into the new list.',
 					},
 					{
 						displayName: 'Position',
 						name: 'pos',
 						type: 'string',
 						default: 'bottom',
-						description:
-							'The position of the new list. top, bottom, or a positive float.'
-					}
-				]
+						description: 'The position of the new list. top, bottom, or a positive float.',
+					},
+				],
 			},
 
 			// ----------------------------------
@@ -1018,11 +1100,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['get'],
-						resource: ['list']
-					}
+						operation: [
+							'get',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
-				description: 'The ID of the list to get.'
+				description: 'The ID of the list to get.',
 			},
 			{
 				displayName: 'Additional Fields',
@@ -1031,9 +1117,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['get'],
-						resource: ['list']
-					}
+						operation: [
+							'get',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -1042,10 +1132,9 @@ export class Trello implements INodeType {
 						name: 'fields',
 						type: 'string',
 						default: 'all',
-						description:
-							'Fields to return. Either "all" or a comma-separated list of fields.'
-					}
-				]
+						description: 'Fields to return. Either "all" or a comma-separated list of fields.',
+					},
+				],
 			},
 
 			// ----------------------------------
@@ -1059,11 +1148,15 @@ export class Trello implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['update'],
-						resource: ['list']
-					}
+						operation: [
+							'update',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
-				description: 'The ID of the list to update.'
+				description: 'The ID of the list to update.',
 			},
 			{
 				displayName: 'Update Fields',
@@ -1072,9 +1165,13 @@ export class Trello implements INodeType {
 				placeholder: 'Add Field',
 				displayOptions: {
 					show: {
-						operation: ['update'],
-						resource: ['list']
-					}
+						operation: [
+							'update',
+						],
+						resource: [
+							'list',
+						],
+					},
 				},
 				default: {},
 				options: [
@@ -1083,41 +1180,42 @@ export class Trello implements INodeType {
 						name: 'idBoard',
 						type: 'string',
 						default: '',
-						description: 'ID of a board the list should be moved to.'
+						description: 'ID of a board the list should be moved to.',
 					},
 					{
 						displayName: 'Closed',
 						name: 'closed',
 						type: 'boolean',
 						default: false,
-						description: 'Whether the list is closed.'
+						description: 'Whether the list is closed.',
 					},
 					{
 						displayName: 'Name',
 						name: 'name',
 						type: 'string',
 						default: '',
-						description: 'New name of the list'
+						description: 'New name of the list',
 					},
 					{
 						displayName: 'Position',
 						name: 'pos',
 						type: 'string',
 						default: 'bottom',
-						description:
-							'The position of the list. top, bottom, or a positive float.'
+						description: 'The position of the list. top, bottom, or a positive float.',
 					},
 					{
 						displayName: 'Subscribed',
 						name: 'subscribed',
 						type: 'boolean',
 						default: false,
-						description: 'Whether the acting user is subscribed to the list.'
-					}
-				]
-			}
-		]
+						description: 'Whether the acting user is subscribed to the list.',
+					},
+				],
+			},
+
+		],
 	};
+
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
@@ -1141,6 +1239,7 @@ export class Trello implements INodeType {
 			qs = {};
 
 			if (resource === 'board') {
+
 				if (operation === 'create') {
 					// ----------------------------------
 					//         create
@@ -1152,11 +1251,9 @@ export class Trello implements INodeType {
 					qs.name = this.getNodeParameter('name', i) as string;
 					qs.desc = this.getNodeParameter('description', i) as string;
 
-					const additionalFields = this.getNodeParameter(
-						'additionalFields',
-						i
-					) as IDataObject;
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					Object.assign(qs, additionalFields);
+
 				} else if (operation === 'delete') {
 					// ----------------------------------
 					//         delete
@@ -1167,6 +1264,7 @@ export class Trello implements INodeType {
 					const id = this.getNodeParameter('id', i) as string;
 
 					endpoint = `boards/${id}`;
+
 				} else if (operation === 'get') {
 					// ----------------------------------
 					//         get
@@ -1178,11 +1276,9 @@ export class Trello implements INodeType {
 
 					endpoint = `boards/${id}`;
 
-					const additionalFields = this.getNodeParameter(
-						'additionalFields',
-						i
-					) as IDataObject;
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					Object.assign(qs, additionalFields);
+
 				} else if (operation === 'update') {
 					// ----------------------------------
 					//         update
@@ -1194,15 +1290,15 @@ export class Trello implements INodeType {
 
 					endpoint = `boards/${id}`;
 
-					const updateFields = this.getNodeParameter(
-						'updateFields',
-						i
-					) as IDataObject;
+					const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
 					Object.assign(qs, updateFields);
+
 				} else {
-					throw new Error(`The operation '${operation}' is not known!`);
+					throw new Error(`The operation "${operation}" is not known!`);
 				}
+
 			} else if (resource === 'card') {
+
 				if (operation === 'create') {
 					// ----------------------------------
 					//         create
@@ -1216,11 +1312,9 @@ export class Trello implements INodeType {
 					qs.name = this.getNodeParameter('name', i) as string;
 					qs.desc = this.getNodeParameter('description', i) as string;
 
-					const additionalFields = this.getNodeParameter(
-						'additionalFields',
-						i
-					) as IDataObject;
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					Object.assign(qs, additionalFields);
+
 				} else if (operation === 'delete') {
 					// ----------------------------------
 					//         delete
@@ -1231,6 +1325,7 @@ export class Trello implements INodeType {
 					const id = this.getNodeParameter('id', i) as string;
 
 					endpoint = `cards/${id}`;
+
 				} else if (operation === 'get') {
 					// ----------------------------------
 					//         get
@@ -1242,11 +1337,9 @@ export class Trello implements INodeType {
 
 					endpoint = `cards/${id}`;
 
-					const additionalFields = this.getNodeParameter(
-						'additionalFields',
-						i
-					) as IDataObject;
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					Object.assign(qs, additionalFields);
+
 				} else if (operation === 'update') {
 					// ----------------------------------
 					//         update
@@ -1258,15 +1351,16 @@ export class Trello implements INodeType {
 
 					endpoint = `cards/${id}`;
 
-					const updateFields = this.getNodeParameter(
-						'updateFields',
-						i
-					) as IDataObject;
+					const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
 					Object.assign(qs, updateFields);
+
 				} else {
-					throw new Error(`The operation '${operation}' is not known!`);
+					throw new Error(`The operation "${operation}" is not known!`);
 				}
+
+
 			} else if (resource === 'list') {
+
 				if (operation === 'archive') {
 					// ----------------------------------
 					//         archive
@@ -1278,6 +1372,7 @@ export class Trello implements INodeType {
 					qs.value = this.getNodeParameter('archive', i) as boolean;
 
 					endpoint = `lists/${id}/closed`;
+
 				} else if (operation === 'create') {
 					// ----------------------------------
 					//         create
@@ -1290,11 +1385,9 @@ export class Trello implements INodeType {
 
 					qs.name = this.getNodeParameter('name', i) as string;
 
-					const additionalFields = this.getNodeParameter(
-						'additionalFields',
-						i
-					) as IDataObject;
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					Object.assign(qs, additionalFields);
+
 				} else if (operation === 'get') {
 					// ----------------------------------
 					//         get
@@ -1306,11 +1399,9 @@ export class Trello implements INodeType {
 
 					endpoint = `lists/${id}`;
 
-					const additionalFields = this.getNodeParameter(
-						'additionalFields',
-						i
-					) as IDataObject;
+					const additionalFields = this.getNodeParameter('additionalFields', i) as IDataObject;
 					Object.assign(qs, additionalFields);
+
 				} else if (operation === 'update') {
 					// ----------------------------------
 					//         update
@@ -1322,25 +1413,18 @@ export class Trello implements INodeType {
 
 					endpoint = `lists/${id}`;
 
-					const updateFields = this.getNodeParameter(
-						'updateFields',
-						i
-					) as IDataObject;
+					const updateFields = this.getNodeParameter('updateFields', i) as IDataObject;
 					Object.assign(qs, updateFields);
+
 				} else {
-					throw new Error(`The operation '${operation}' is not known!`);
+					throw new Error(`The operation "${operation}" is not known!`);
 				}
+
 			} else {
-				throw new Error(`The resource '${resource}' is not known!`);
+				throw new Error(`The resource "${resource}" is not known!`);
 			}
 
-			const responseData = await apiRequest.call(
-				this,
-				requestMethod,
-				endpoint,
-				body,
-				qs
-			);
+			const responseData = await apiRequest.call(this, requestMethod, endpoint, body, qs);
 
 			returnData.push(responseData as IDataObject);
 		}
