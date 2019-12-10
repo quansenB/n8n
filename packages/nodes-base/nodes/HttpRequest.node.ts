@@ -617,7 +617,6 @@ export class HttpRequest implements INodeType {
 			}
 
 			// Now that the options are all set make the actual http request
-			console.log(requestOptions)
 			const response = await this.helpers.request(requestOptions);
 
 			if (responseFormat === 'file') {
