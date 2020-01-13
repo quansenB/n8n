@@ -61,10 +61,10 @@ export class Xentral implements INodeType {
 						name: 'Auftrag (v1)',
 						value: 'order'
 					},
-					/* {
-						name: 'Addresses',
+					{
+						name: 'Adressen',
 						value: 'addresses'
-					} */
+					}
 				],
 				default: 'order',
 				description: 'The resource to operate on.'
