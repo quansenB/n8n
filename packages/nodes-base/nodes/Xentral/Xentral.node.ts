@@ -40,11 +40,11 @@ export class Xentral implements INodeType {
 				type: "options",
 				options: [
 					{
-						name: "Order",
+						name: "Order(v1)",
 						value: "order"
 					},
 					{
-						name: "Address",
+						name: "Address(v1/v2)",
 						value: "address"
 					}
 				],
@@ -117,8 +117,8 @@ export class Xentral implements INodeType {
 					}
 				},
 				default: "",
-				required: false,
-				description: "Data of the order to create."
+				required: true,
+				description: "Data of the order to update."
 			},
 
 			// ----------------------------------
@@ -135,7 +135,7 @@ export class Xentral implements INodeType {
 					}
 				},
 				default: "",
-				required: false,
+				required: true,
 				description: "Data of the order to create."
 			},
 
@@ -153,28 +153,28 @@ export class Xentral implements INodeType {
 				},
 				options: [
 					{
-						name: "Get All",
-						value: "getAll",
-						description: "Call up the address list"
-					},
-					{
-						name: "Get by ID",
-						value: "getById",
-						description: "Get individual addresses"
-					},
-					{
-						name: "Create",
+						name: "Create(v1)",
 						value: "create",
 						description: "Create new address"
 					},
 					{
-						name: "Update",
+						name: "Update(v1)",
 						value: "update",
 						description: "Edit address"
+					},
+					{
+						name: "Get All(v2)",
+						value: "getAll",
+						description: "Call up the address list"
+					},
+					{
+						name: "Get by ID(v2)",
+						value: "getById",
+						description: "Get individual addresses"
 					}
 				],
-				default: "getAll",
-				description: "Call up the address list"
+				default: "create",
+				description: "Address options"
 			},
 
 			// ----------------------------------
@@ -230,7 +230,7 @@ export class Xentral implements INodeType {
 				},
 				default: 1,
 				required: true,
-				description: "id of the address to update"
+				description: "ID of the address to update."
 			},
 			{
 				displayName: "Data",
@@ -244,7 +244,7 @@ export class Xentral implements INodeType {
 				},
 				default: 1,
 				required: true,
-				description: "Data of the address to update"
+				description: "Data of the address to update."
 			}
 
 		]
@@ -320,7 +320,7 @@ export class Xentral implements INodeType {
 					requestMethod = "GET";
 
 					const id = this.getNodeParameter("id", i) as number;
-					endpoint = `/api/v1/adressen/${id}`;
+					endpoint = `/api/v2/adressen/${id}`;
 				} else if (operation === "create") {
 					requestMethod = "POST";
 					endpoint = "/api/v1/adressen";
@@ -332,10 +332,9 @@ export class Xentral implements INodeType {
 					requestMethod = "PUT";
 					const id = this.getNodeParameter("id", i) as number;
 					endpoint = `/api/v1/adressen/${id}`;
-
-					body = {
-						data: JSON.parse(this.getNodeParameter("data", i) as string) as object
-					} as IDataObject;
+					
+					body =  JSON.parse(this.getNodeParameter("data", i) as string) as IDataObject;
+					
 				}
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
