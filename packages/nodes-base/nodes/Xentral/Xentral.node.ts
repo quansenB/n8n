@@ -210,7 +210,7 @@ export class Xentral implements INodeType {
 					}
 				},
 				default: "",
-				required: false,
+				required: true,
 				description: "Data of the address to create."
 			},
 
@@ -332,7 +332,7 @@ export class Xentral implements INodeType {
 					requestMethod = "PUT";
 					const id = this.getNodeParameter("id", i) as number;
 					endpoint = `/api/v1/adressen/${id}`;
-					
+
 					body = {
 						data: JSON.parse(this.getNodeParameter("data", i) as string) as object
 					} as IDataObject;
