@@ -200,36 +200,8 @@ export class Xentral implements INodeType {
 			// ----------------------------------
 
 			{
-				displayName: "Type",
-				name: "type",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "firma",
-				required: true,
-				description: "e.g company"
-			},
-			{
-				displayName: "Language",
-				name: "language",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "deutsch",
-				required: true,
-				description: "e.g Deutsch"
-			},
-			{
-				displayName: "Name",
-				name: "name",
+				displayName: "Data",
+				name: "data",
 				type: "string",
 				displayOptions: {
 					show: {
@@ -238,126 +210,15 @@ export class Xentral implements INodeType {
 					}
 				},
 				default: "",
-				required: true,
-				description: "e.g Max Muster"
+				required: false,
+				description: "Data of the address to create."
 			},
-			{
-				displayName: "Land",
-				name: "land",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g DE"
-			},
-			{
-				displayName: "Address",
-				name: "address",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g Musterstrasse 6"
-			},
-			{
-				displayName: "Place",
-				name: "place",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g Musterdorf"
-			},
-			{
-				displayName: "Postcode",
-				name: "postcode",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g 12345"
-			},
-			{
-				displayName: "Phone",
-				name: "phone",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g 0821123456789"
-			},
-			{
-				displayName: "Fax",
-				name: "fax",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g 0821123456789"
-			},
-			{
-				displayName: "Email",
-				name: "email",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g info@maxmuellermuster.de"
-			},
-			{
-				displayName: "Project",
-				name: "project",
-				type: "number",
-				displayOptions: {
-					show: {
-						operation: ["create"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: true,
-				description: "e.g 1"
-			},
+
 
 			// ----------------------------------
 			//         address: update
 			// ----------------------------------
-	{
+			{
 				displayName: "ID",
 				name: "id",
 				type: "string",
@@ -369,11 +230,11 @@ export class Xentral implements INodeType {
 				},
 				default: 1,
 				required: true,
-				description: "e.g company"
+				description: "id of the address to update"
 			},
 			{
-				displayName: "Type",
-				name: "type",
+				displayName: "Data",
+				name: "data",
 				type: "string",
 				displayOptions: {
 					show: {
@@ -381,150 +242,11 @@ export class Xentral implements INodeType {
 						resource: ["address"]
 					}
 				},
-				default: "firma",
-				required: false,
-				description: "e.g company"
-			},
-			{
-				displayName: "Language",
-				name: "language",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "deutsch",
-				required: false,
-				description: "e.g Deutsch"
-			},
-			{
-				displayName: "Name",
-				name: "name",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g Max Muster"
-			},
-			{
-				displayName: "Land",
-				name: "land",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g DE"
-			},
-			{
-				displayName: "Address",
-				name: "address",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g Musterstrasse 6"
-			},
-			{
-				displayName: "Place",
-				name: "place",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g Musterdorf"
-			},
-			{
-				displayName: "Postcode",
-				name: "postcode",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g 12345"
-			},
-			{
-				displayName: "Phone",
-				name: "phone",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g 0821123456789"
-			},
-			{
-				displayName: "Fax",
-				name: "fax",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g 0821123456789"
-			},
-			{
-				displayName: "Email",
-				name: "email",
-				type: "string",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g info@maxmuellermuster.de"
-			},
-			{
-				displayName: "Project",
-				name: "project",
-				type: "number",
-				displayOptions: {
-					show: {
-						operation: ["update"],
-						resource: ["address"]
-					}
-				},
-				default: "",
-				required: false,
-				description: "e.g 1"
+				default: 1,
+				required: true,
+				description: "Data of the address to update"
 			}
+
 		]
 	};
 
@@ -601,37 +323,19 @@ export class Xentral implements INodeType {
 					endpoint = `/api/v1/adressen/${id}`;
 				} else if (operation === "create") {
 					requestMethod = "POST";
-
-					body.type = this.getNodeParameter("type", i) as string;
-					body.language = this.getNodeParameter("language", i) as string;
-					body.name = this.getNodeParameter("name", i) as string;
-					body.land = this.getNodeParameter("land", i) as string;
-					body.address = this.getNodeParameter("address", i) as string;
-					body.place = this.getNodeParameter("place", i) as string;
-					body.postcode = this.getNodeParameter("postcode", i) as string;
-					body.phone = this.getNodeParameter("phone", i) as string;
-					body.fax = this.getNodeParameter("fax", i) as string;
-					body.email = this.getNodeParameter("email", i) as string;
-					body.project = this.getNodeParameter("project", i) as string;
-
 					endpoint = "/api/v1/adressen";
+
+					body = {
+						data: JSON.parse(this.getNodeParameter("data", i) as string) as object
+					} as IDataObject;
 				} else if (operation === "update") {
 					requestMethod = "PUT";
-
-					body.type = this.getNodeParameter("type", i) as string;
-					body.language = this.getNodeParameter("language", i) as string;
-					body.name = this.getNodeParameter("name", i) as string;
-					body.land = this.getNodeParameter("land", i) as string;
-					body.address = this.getNodeParameter("address", i) as string;
-					body.place = this.getNodeParameter("place", i) as string;
-					body.postcode = this.getNodeParameter("postcode", i) as string;
-					body.phone = this.getNodeParameter("phone", i) as string;
-					body.fax = this.getNodeParameter("fax", i) as string;
-					body.email = this.getNodeParameter("email", i) as string;
-					body.project = this.getNodeParameter("project", i) as string;
-
 					const id = this.getNodeParameter("id", i) as number;
 					endpoint = `/api/v1/adressen/${id}`;
+					
+					body = {
+						data: JSON.parse(this.getNodeParameter("data", i) as string) as object
+					} as IDataObject;
 				}
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
