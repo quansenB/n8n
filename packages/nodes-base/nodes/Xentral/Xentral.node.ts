@@ -674,7 +674,6 @@ export class Xentral implements INodeType {
 					for (const key of Object.keys(queryParameters)) {
 						qs[key] = queryParameters[key];
 					}
-					console.log(qs);
 
 					endpoint = "/api/v2/adressen";
 				} else if (operation === "getById") {
@@ -718,7 +717,8 @@ export class Xentral implements INodeType {
 					this,
 					requestMethod,
 					endpoint,
-					body
+					body,
+					qs
 				);
 			}
 
