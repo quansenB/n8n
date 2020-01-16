@@ -315,7 +315,7 @@ export class Xentral implements INodeType {
 				if (operation === "getAll") {
 					requestMethod = "GET";
 
-					endpoint = "/api/v1/adressen";
+					endpoint = "/api/v2/adressen";
 				} else if (operation === "getById") {
 					requestMethod = "GET";
 
@@ -325,16 +325,14 @@ export class Xentral implements INodeType {
 					requestMethod = "POST";
 					endpoint = "/api/v1/adressen";
 
-					body = {
-						data: JSON.parse(this.getNodeParameter("data", i) as string) as object
-					} as IDataObject;
+					body = JSON.parse(this.getNodeParameter("data", i) as string) as IDataObject;
 				} else if (operation === "update") {
 					requestMethod = "PUT";
 					const id = this.getNodeParameter("id", i) as number;
 					endpoint = `/api/v1/adressen/${id}`;
-					
-					body =  JSON.parse(this.getNodeParameter("data", i) as string) as IDataObject;
-					
+
+					body = JSON.parse(this.getNodeParameter("data", i) as string) as IDataObject;
+
 				}
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);

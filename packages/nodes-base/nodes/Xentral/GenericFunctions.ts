@@ -38,7 +38,7 @@ export async function xentralRequest(this: IHookFunctions | IExecuteFunctions, m
 			sendImmediately: false,
 		},
 	};
-	console.log(body);
+
 	if (Object.keys(body).length !== 0) {
 		options.body = body;
 	}
