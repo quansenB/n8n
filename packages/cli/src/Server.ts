@@ -189,8 +189,8 @@ class App {
 				}
 
 				const jwkClient = jwks({ cache: true, jwksUri });
-				function getKey(header: any, callback: Function) {
-					jwkClient.getSigningKey(header.kid, (err: Error, key: any) => {
+				function getKey(header: any, callback: Function) { // tslint:disable-line:no-any
+					jwkClient.getSigningKey(header.kid, (err: Error, key: any) => { // tslint:disable-line:no-any
 						if (err) throw ResponseHelper.jwtAuthAuthorizationError(res, err.message);
 
 						const signingKey = key.publicKey || key.rsaPublicKey;
@@ -497,7 +497,7 @@ class App {
 			if (WorkflowHelpers.isWorkflowIdValid(workflowData.id) === true && (runData === undefined || startNodes === undefined || startNodes.length === 0 || destinationNode === undefined)) {
 				// Webhooks can only be tested with saved workflows
 				const credentials = await WorkflowCredentials(workflowData.nodes);
-				const additionalData = await WorkflowExecuteAdditionalData.getBase(executionMode, credentials);
+				const additionalData = await WorkflowExecuteAdditionalData.getBase(credentials);
 				const nodeTypes = NodeTypes();
 				const workflowInstance = new Workflow(workflowData.id, workflowData.nodes, workflowData.connections, false, nodeTypes, undefined, workflowData.settings);
 				const needsWebhook = await this.testWebhooks.needsWebhookData(workflowData, workflowInstance, additionalData, executionMode, sessionId, destinationNode);
@@ -544,13 +544,12 @@ class App {
 			const methodName = req.query.methodName;
 
 			const nodeTypes = NodeTypes();
-			const executionMode = 'manual';
 
 			const loadDataInstance = new LoadNodeParameterOptions(nodeType, nodeTypes, credentials);
 
 			const workflowData = loadDataInstance.getWorkflowData() as IWorkflowBase;
 			const workflowCredentials = await WorkflowCredentials(workflowData.nodes);
-			const additionalData = await WorkflowExecuteAdditionalData.getBase(executionMode, workflowCredentials, currentNodeParameters);
+			const additionalData = await WorkflowExecuteAdditionalData.getBase(workflowCredentials, currentNodeParameters);
 
 			return loadDataInstance.getOptions(methodName, additionalData);
 		}));
@@ -655,6 +654,10 @@ class App {
 				throw new Error('No encryption key got found to encrypt the credentials!');
 			}
 
+			if (incomingData.name === '') {
+				throw new Error('Credentials have to have a name set!');
+			}
+
 			// Check if credentials with the same name and type exist already
 			const findQuery = {
 				where: {
@@ -693,6 +696,10 @@ class App {
 			const incomingData = req.body;
 
 			const id = req.params.id;
+
+			if (incomingData.name === '') {
+				throw new Error('Credentials have to have a name set!');
+			}
 
 			// Add the date for newly added node access permissions
 			for (const nodeAccess of incomingData.nodesAccess) {
@@ -862,8 +869,8 @@ class App {
 			}
 
 			const countFilter = JSON.parse(JSON.stringify(filter));
-			if (req.query.lastStartedAt) {
-				filter.startedAt = LessThan(req.query.lastStartedAt);
+			if (req.query.lastId) {
+				filter.id = LessThan(req.query.lastId);
 			}
 			countFilter.select = ['id'];
 
@@ -880,7 +887,7 @@ class App {
 				],
 				where: filter,
 				order: {
-					startedAt: "DESC",
+					id: 'DESC',
 				},
 				take: limit,
 			});
@@ -956,6 +963,18 @@ class App {
 				retryOf: req.params.id,
 				workflowData: fullExecutionData.workflowData,
 			};
+
+			if (req.body.loadWorkflow === true) {
+				// Loads the currently saved workflow to execute instead of the
+				// one saved at the time of the execution.
+				const workflowId = fullExecutionData.workflowData.id;
+				data.workflowData = await Db.collections.Workflow!.findOne(workflowId) as IWorkflowBase;
+
+				if (data.workflowData === undefined) {
+					throw new Error(`The workflow with the ID "${workflowId}" could not be found and so the data not be loaded for the retry.`);
+				}
+			}
+
 			const workflowRunner = new WorkflowRunner();
 			const executionId = await workflowRunner.run(data);
 

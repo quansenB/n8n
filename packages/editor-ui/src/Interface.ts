@@ -10,6 +10,7 @@ import {
 	INode,
 	INodeCredentials,
 	INodeIssues,
+	INodeParameters,
 	INodePropertyOptions,
 	INodeTypeDescription,
 	IRunExecutionData,
@@ -50,6 +51,7 @@ declare module 'jsplumb' {
 	interface OnConnectionBindInfo {
 		originalSourceEndpoint: Endpoint;
 		originalTargetEndpoint: Endpoint;
+		getParameters(): { index: number };
 	}
 }
 
@@ -119,12 +121,12 @@ export interface IRestApi {
 	getActiveWorkflows(): Promise<string[]>;
 	getActivationError(id: string): Promise<IActivationError | undefined >;
 	getCurrentExecutions(filter: object): Promise<IExecutionsCurrentSummaryExtended[]>;
-	getPastExecutions(filter: object, limit: number, lastStartedAt?: Date): Promise<IExecutionsListResponse>;
+	getPastExecutions(filter: object, limit: number, lastId?: string | number): Promise<IExecutionsListResponse>;
 	stopCurrentExecution(executionId: string): Promise<IExecutionsStopData>;
 	makeRestApiRequest(method: string, endpoint: string, data?: any): Promise<any>; // tslint:disable-line:no-any
 	getSettings(): Promise<IN8nUISettings>;
 	getNodeTypes(): Promise<INodeTypeDescription[]>;
-	getNodeParameterOptions(nodeType: string, methodName: string, credentials?: INodeCredentials): Promise<INodePropertyOptions[]>;
+	getNodeParameterOptions(nodeType: string, methodName: string, currentNodeParameters: INodeParameters, credentials?: INodeCredentials): Promise<INodePropertyOptions[]>;
 	removeTestWebhook(workflowId: string): Promise<boolean>;
 	runWorkflow(runData: IStartRunData): Promise<IExecutionPushResponse>;
 	createNewWorkflow(sendData: IWorkflowData): Promise<IWorkflowDb>;
@@ -141,7 +143,7 @@ export interface IRestApi {
 	getCredentialTypes(): Promise<ICredentialType[]>;
 	getExecution(id: string): Promise<IExecutionResponse>;
 	deleteExecutions(sendData: IExecutionDeleteFilter): Promise<void>;
-	retryExecution(id: string): Promise<boolean>;
+	retryExecution(id: string, loadWorkflow?: boolean): Promise<boolean>;
 	getTimezones(): Promise<IDataObject>;
 }
 

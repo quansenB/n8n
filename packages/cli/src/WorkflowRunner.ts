@@ -1,4 +1,3 @@
-
 import {
 	ActiveExecutions,
 	IProcessMessageDataHook,
@@ -13,16 +12,19 @@ import {
 
 import {
 	IProcessMessage,
+	WorkflowExecute,
 } from 'n8n-core';
 
 import {
 	IExecutionError,
-	INode,
 	IRun,
-	IWorkflowExecuteHooks,
+	Workflow,
+	WorkflowHooks,
 	WorkflowExecuteMode,
 } from 'n8n-workflow';
 
+import * as config from '../config';
+import * as PCancelable from 'p-cancelable';
 import { join as pathJoin } from 'path';
 import { fork } from 'child_process';
 
@@ -39,69 +41,14 @@ export class WorkflowRunner {
 
 
 	/**
-	 * Returns the data of the node types that are needed
-	 * to execute the given nodes
-	 *
-	 * @param {INode[]} nodes
-	 * @returns {ITransferNodeTypes}
-	 * @memberof WorkflowRunner
-	 */
-	getNodeTypeData(nodes: INode[]): ITransferNodeTypes {
-		const nodeTypes = NodeTypes();
-
-		// Check which node-types have to be loaded
-		const neededNodeTypes: string[] = [];
-		for (const node of nodes) {
-			if (!neededNodeTypes.includes(node.type)) {
-				neededNodeTypes.push(node.type);
-			}
-		}
-
-		// Get all the data of the needed node types that they
-		// can be loaded again in the process
-		const returnData: ITransferNodeTypes = {};
-		for (const nodeTypeName of neededNodeTypes) {
-			if (nodeTypes.nodeTypes[nodeTypeName] === undefined) {
-				throw new Error(`The NodeType "${nodeTypeName}" could not be found!`);
-			}
-
-			returnData[nodeTypeName] = {
-				className: nodeTypes.nodeTypes[nodeTypeName].type.constructor.name,
-				sourcePath: nodeTypes.nodeTypes[nodeTypeName].sourcePath,
-			};
-		}
-
-		return returnData;
-	}
-
-
-	/**
 	 * The process did send a hook message so execute the appropiate hook
 	 *
-	 * @param {IWorkflowExecuteHooks} hookFunctions
+	 * @param {WorkflowHooks} workflowHooks
 	 * @param {IProcessMessageDataHook} hookData
 	 * @memberof WorkflowRunner
 	 */
-	processHookMessage(hookFunctions: IWorkflowExecuteHooks, hookData: IProcessMessageDataHook) {
-		if (hookFunctions[hookData.hook] !== undefined && Array.isArray(hookFunctions[hookData.hook])) {
-
-			for (const hookFunction of hookFunctions[hookData.hook]!) {
-				// TODO: Not sure if that is 100% correct or something is still missing like to wait
-				hookFunction.apply(this, hookData.parameters)
-					.catch((error: Error) => {
-						// Catch all errors here because when "executeHook" gets called
-						// we have the most time no "await" and so the errors would so
-						// not be uncaught by anything.
-
-						// TODO: Add proper logging
-						console.error(`There was a problem executing hook: "${hookData.hook}"`);
-						console.error('Parameters:');
-						console.error(hookData.parameters);
-						console.error('Error:');
-						console.error(error);
-					});
-			}
-		}
+	processHookMessage(workflowHooks: WorkflowHooks, hookData: IProcessMessageDataHook) {
+		workflowHooks.executeHookFunctions(hookData.hook, hookData.parameters);
 	}
 
 
@@ -133,12 +80,12 @@ export class WorkflowRunner {
 		this.activeExecutions.remove(executionId, fullRunData);
 
 		// Also send to Editor UI
-		WorkflowExecuteAdditionalData.pushExecutionFinished(fullRunData, executionId);
+		WorkflowExecuteAdditionalData.pushExecutionFinished(executionMode, fullRunData, executionId);
 	}
 
 
 	/**
-	 * Run the workflow in subprocess
+	 * Run the workflow
 	 *
 	 * @param {IWorkflowExecutionDataProcess} data
 	 * @param {boolean} [loadStaticData] If set will the static data be loaded from
@@ -147,6 +94,70 @@ export class WorkflowRunner {
 	 * @memberof WorkflowRunner
 	 */
 	async run(data: IWorkflowExecutionDataProcess, loadStaticData?: boolean): Promise<string> {
+		const executionsProcess = config.get('executions.process') as string;
+		if (executionsProcess === 'main') {
+			return this.runMainProcess(data, loadStaticData);
+		}
+
+		return this.runSubprocess(data, loadStaticData);
+	}
+
+
+	/**
+	 * Run the workflow in current process
+	 *
+	 * @param {IWorkflowExecutionDataProcess} data
+	 * @param {boolean} [loadStaticData] If set will the static data be loaded from
+	 *                                   the workflow and added to input data
+	 * @returns {Promise<string>}
+	 * @memberof WorkflowRunner
+	 */
+	async runMainProcess(data: IWorkflowExecutionDataProcess, loadStaticData?: boolean): Promise<string> {
+		if (loadStaticData === true && data.workflowData.id) {
+			data.workflowData.staticData = await WorkflowHelpers.getStaticDataById(data.workflowData.id as string);
+		}
+
+		const nodeTypes = NodeTypes();
+
+		const workflow = new Workflow(data.workflowData.id as string | undefined, data.workflowData!.nodes, data.workflowData!.connections, data.workflowData!.active, nodeTypes, data.workflowData!.staticData);
+		const additionalData = await WorkflowExecuteAdditionalData.getBase(data.credentials);
+
+		// Register the active execution
+		const executionId = this.activeExecutions.add(data, undefined);
+
+		additionalData.hooks = WorkflowExecuteAdditionalData.getWorkflowHooksMain(data, executionId);
+
+		let workflowExecution: PCancelable<IRun>;
+		if (data.executionData !== undefined) {
+			const workflowExecute = new WorkflowExecute(additionalData, data.executionMode, data.executionData);
+			workflowExecution = workflowExecute.processRunExecutionData(workflow);
+		} else if (data.runData === undefined || data.startNodes === undefined || data.startNodes.length === 0 || data.destinationNode === undefined) {
+			// Execute all nodes
+
+			// Can execute without webhook so go on
+			const workflowExecute = new WorkflowExecute(additionalData, data.executionMode);
+			workflowExecution = workflowExecute.run(workflow, undefined, data.destinationNode);
+		} else {
+			// Execute only the nodes between start and destination nodes
+			const workflowExecute = new WorkflowExecute(additionalData, data.executionMode);
+			workflowExecution = workflowExecute.runPartialWorkflow(workflow, data.runData, data.startNodes, data.destinationNode);
+		}
+
+		this.activeExecutions.attachWorkflowExecution(executionId, workflowExecution);
+
+		return executionId;
+	}
+
+	/**
+	 * Run the workflow
+	 *
+	 * @param {IWorkflowExecutionDataProcess} data
+	 * @param {boolean} [loadStaticData] If set will the static data be loaded from
+	 *                                   the workflow and added to input data
+	 * @returns {Promise<string>}
+	 * @memberof WorkflowRunner
+	 */
+	async runSubprocess(data: IWorkflowExecutionDataProcess, loadStaticData?: boolean): Promise<string> {
 		const startedAt = new Date();
 		const subprocess = fork(pathJoin(__dirname, 'WorkflowRunnerProcess.js'));
 
@@ -155,14 +166,32 @@ export class WorkflowRunner {
 		}
 
 		// Register the active execution
-		const executionId = this.activeExecutions.add(subprocess, data);
+		const executionId = this.activeExecutions.add(data, subprocess);
 
-		const nodeTypeData = this.getNodeTypeData(data.workflowData.nodes);
+		// Check if workflow contains a "executeWorkflow" Node as in this
+		// case we can not know which nodeTypes will be needed and so have
+		// to load all of them in the workflowRunnerProcess
+		let loadAllNodeTypes = false;
+		for (const node of data.workflowData.nodes) {
+			if (node.type === 'n8n-nodes-base.executeWorkflow') {
+				loadAllNodeTypes = true;
+				break;
+			}
+		}
+
+		let nodeTypeData: ITransferNodeTypes;
+		if (loadAllNodeTypes === true) {
+			// Supply all nodeTypes
+			nodeTypeData = WorkflowHelpers.getAllNodeTypeData();
+		} else {
+			// Supply only nodeTypes which the workflow needs
+			nodeTypeData = WorkflowHelpers.getNodeTypeData(data.workflowData.nodes);
+		}
 
 		(data as unknown as IWorkflowExecutionDataProcessWithExecution).executionId = executionId;
 		(data as unknown as IWorkflowExecutionDataProcessWithExecution).nodeTypeData = nodeTypeData;
 
-		const hookFunctions = WorkflowExecuteAdditionalData.getHookMethods(data, executionId);
+		const workflowHooks = WorkflowExecuteAdditionalData.getWorkflowHooksMain(data, executionId);
 
 		// Send all data to subprocess it needs to run the workflow
 		subprocess.send({ type: 'startWorkflow', data } as IProcessMessage);
@@ -178,7 +207,7 @@ export class WorkflowRunner {
 				this.processError(executionError, startedAt, data.executionMode, executionId);
 
 			} else if (message.type === 'processHook') {
-				this.processHookMessage(hookFunctions, message.data as IProcessMessageDataHook);
+				this.processHookMessage(workflowHooks, message.data as IProcessMessageDataHook);
 			}
 		});
 

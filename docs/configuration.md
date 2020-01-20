@@ -77,6 +77,20 @@ These settings can also be overwritten on a per workflow basis in the workflow
 settings in the Editor UI.
 
 
+## Execute In Same Process
+
+All workflows get executed in their own separate process. This ensures that all CPU cores
+get used and that they do not block each other on CPU intensive tasks. Additionally does
+the crash of one execution not take down the whole application. The disadvantage is, however,
+that it slows down the start-time considerably and uses much more memory. So in case, the
+workflows are not CPU intensive and they have to start very fast it is possible to run them
+all directly in the main-process with this setting.
+
+```bash
+export EXECUTIONS_PROCESS=main
+```
+
+
 ## Exclude Nodes
 
 It is possible to not allow users to use nodes of a specific node type. If you, for example,
@@ -97,6 +111,29 @@ Additional folders can be defined via an environment variable.
 
 ```bash
 export N8N_CUSTOM_EXTENSIONS="/home/jim/n8n/custom-nodes;/data/n8n/nodes"
+```
+
+
+## Use built-in and external modules in Function-Nodes
+
+For security reasons, importing modules is restricted by default in Function-Nodes.
+It is, however, possible to lift that restriction for built-in and external modules by
+setting the following environment variables:
+`NODE_FUNCTION_ALLOW_BUILTIN`: For builtin modules
+`NODE_FUNCTION_ALLOW_EXTERNAL`: For external modules sourced from n8n/node_modules directory. External module support is disabled when env variable is not set.
+
+```bash
+# Allows usage of all builtin modules
+export NODE_FUNCTION_ALLOW_BUILTIN=*
+
+# Allows usage of only crypto
+export NODE_FUNCTION_ALLOW_BUILTIN=crypto
+
+# Allows usage of only crypto and fs
+export NODE_FUNCTION_ALLOW_BUILTIN=crypto,fs
+
+# Allow usage of external npm modules. Wildcard matching is not supported.
+export NODE_FUNCTION_ALLOW_EXTERNAL=moment,lodash
 ```
 
 

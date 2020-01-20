@@ -1,16 +1,14 @@
 import {
-	IConnections,
 	ICredentialsDecrypted,
 	ICredentialsEncrypted,
 	IDataObject,
 	IExecutionError,
-	INode,
 	IRun,
 	IRunData,
 	IRunExecutionData,
 	ITaskData,
+	IWorkflowBase as IWorkflowBaseWorkflow,
 	IWorkflowCredentials,
-	IWorkflowSettings,
 	WorkflowExecuteMode,
 } from 'n8n-workflow';
 
@@ -19,6 +17,7 @@ import {
 } from 'n8n-core';
 
 
+import * as PCancelable from 'p-cancelable';
 import { ObjectID, Repository } from 'typeorm';
 
 import { ChildProcess } from 'child_process';
@@ -44,16 +43,9 @@ export interface IDatabaseCollections {
 }
 
 
-export interface IWorkflowBase {
+export interface IWorkflowBase extends IWorkflowBaseWorkflow {
 	id?: number | string | ObjectID;
-	name: string;
-	active: boolean;
-	createdAt: Date;
-	updatedAt: Date;
-	nodes: INode[];
-	connections: IConnections;
-	settings?: IWorkflowSettings;
-	staticData?: IDataObject;
+
 }
 
 
@@ -190,9 +182,10 @@ export interface IExecutionDeleteFilter {
 
 export interface IExecutingWorkflowData {
 	executionData: IWorkflowExecutionDataProcess;
-	process: ChildProcess;
+	process?: ChildProcess;
 	startedAt: Date;
 	postExecutePromises: Array<IDeferredPromise<IRun | undefined>>;
+	workflowExecution?: PCancelable<IRun>;
 }
 
 export interface IN8nConfig {

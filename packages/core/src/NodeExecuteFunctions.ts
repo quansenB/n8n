@@ -13,10 +13,12 @@ import {
 	IDataObject,
 	IExecuteFunctions,
 	IExecuteSingleFunctions,
+	IExecuteWorkflowInfo,
 	INode,
 	INodeExecutionData,
 	INodeParameters,
 	INodeType,
+	IPollFunctions,
 	IRunExecutionData,
 	ITaskDataConnections,
 	ITriggerFunctions,
@@ -311,6 +313,57 @@ export function getWebhookDescription(name: string, workflow: Workflow, node: IN
 
 
 /**
+ * Returns the execute functions the poll nodes have access to.
+ *
+ * @export
+ * @param {Workflow} workflow
+ * @param {INode} node
+ * @param {IWorkflowExecuteAdditionalData} additionalData
+ * @param {WorkflowExecuteMode} mode
+ * @returns {ITriggerFunctions}
+ */
+// TODO: Check if I can get rid of: additionalData, and so then maybe also at ActiveWorkflowRunner.add
+export function getExecutePollFunctions(workflow: Workflow, node: INode, additionalData: IWorkflowExecuteAdditionalData, mode: WorkflowExecuteMode): IPollFunctions {
+	return ((workflow: Workflow, node: INode) => {
+		return {
+			__emit: (data: INodeExecutionData[][]): void => {
+				throw new Error('Overwrite NodeExecuteFunctions.getExecutePullFunctions.__emit function!');
+			},
+			getCredentials(type: string): ICredentialDataDecryptedObject | undefined {
+				return getCredentials(workflow, node, type, additionalData);
+			},
+			getMode: (): WorkflowExecuteMode => {
+				return mode;
+			},
+			getNodeParameter: (parameterName: string, fallbackValue?: any): NodeParameterValue | INodeParameters | NodeParameterValue[] | INodeParameters[] | object => { //tslint:disable-line:no-any
+				const runExecutionData: IRunExecutionData | null = null;
+				const itemIndex = 0;
+				const runIndex = 0;
+				const connectionInputData: INodeExecutionData[] = [];
+
+				return getNodeParameter(workflow, runExecutionData, runIndex, connectionInputData, node, parameterName, itemIndex, fallbackValue);
+			},
+			getRestApiUrl: (): string => {
+				return additionalData.restApiUrl;
+			},
+			getTimezone: (): string => {
+				return getTimezone(workflow, additionalData);
+			},
+			getWorkflowStaticData(type: string): IDataObject {
+				return workflow.getStaticData(type, node);
+			},
+			helpers: {
+				prepareBinaryData,
+				request: requestPromise,
+				returnJsonArray,
+			},
+		};
+	})(workflow, node);
+}
+
+
+
+/**
  * Returns the execute functions the trigger nodes have access to.
  *
  * @export
@@ -340,6 +393,9 @@ export function getExecuteTriggerFunctions(workflow: Workflow, node: INode, addi
 				const connectionInputData: INodeExecutionData[] = [];
 
 				return getNodeParameter(workflow, runExecutionData, runIndex, connectionInputData, node, parameterName, itemIndex, fallbackValue);
+			},
+			getRestApiUrl: (): string => {
+				return additionalData.restApiUrl;
 			},
 			getTimezone: (): string => {
 				return getTimezone(workflow, additionalData);
@@ -375,6 +431,9 @@ export function getExecuteTriggerFunctions(workflow: Workflow, node: INode, addi
 export function getExecuteFunctions(workflow: Workflow, runExecutionData: IRunExecutionData, runIndex: number, connectionInputData: INodeExecutionData[], inputData: ITaskDataConnections, node: INode, additionalData: IWorkflowExecuteAdditionalData, mode: WorkflowExecuteMode): IExecuteFunctions {
 	return ((workflow, runExecutionData, connectionInputData, inputData, node) => {
 		return {
+			async executeWorkflow(workflowInfo: IExecuteWorkflowInfo, inputData?: INodeExecutionData[]): Promise<any> { // tslint:disable-line:no-any
+				return additionalData.executeWorkflow(workflowInfo, additionalData, inputData);
+			},
 			getContext(type: string): IContextObject {
 				return NodeHelpers.getContext(runExecutionData, type, node);
 			},
@@ -407,6 +466,9 @@ export function getExecuteFunctions(workflow: Workflow, runExecutionData: IRunEx
 			},
 			getMode: (): WorkflowExecuteMode => {
 				return mode;
+			},
+			getRestApiUrl: (): string => {
+				return additionalData.restApiUrl;
 			},
 			getTimezone: (): string => {
 				return getTimezone(workflow, additionalData);
@@ -482,6 +544,9 @@ export function getExecuteSingleFunctions(workflow: Workflow, runExecutionData: 
 			getMode: (): WorkflowExecuteMode => {
 				return mode;
 			},
+			getRestApiUrl: (): string => {
+				return additionalData.restApiUrl;
+			},
 			getTimezone: (): string => {
 				return getTimezone(workflow, additionalData);
 			},
@@ -539,6 +604,9 @@ export function getLoadOptionsFunctions(workflow: Workflow, node: INode, additio
 			},
 			getTimezone: (): string => {
 				return getTimezone(workflow, additionalData);
+			},
+			getRestApiUrl: (): string => {
+				return additionalData.restApiUrl;
 			},
 			helpers: {
 				request: requestPromise,

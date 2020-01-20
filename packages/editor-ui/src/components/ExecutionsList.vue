@@ -16,7 +16,19 @@
 							</el-option>
 						</el-select>
 					</el-col>
-					<el-col :span="14">&nbsp;
+					<el-col :span="2">&nbsp;
+					</el-col>
+					<el-col :span="4">
+						<el-select v-model="filter.status" placeholder="Select Status" size="small" filterable @change="handleFilterChanged">
+							<el-option
+								v-for="item in statuses"
+								:key="item.id"
+								:label="item.name"
+								:value="item.id">
+							</el-option>
+						</el-select>
+					</el-col>
+					<el-col :span="8">&nbsp;
 					</el-col>
 				</el-row>
 			</div>
@@ -79,9 +91,17 @@
 							</span>
 						</el-tooltip>
 
-						<el-button class="retry-button" circle v-if="scope.row.stoppedAt !== undefined && !scope.row.finished && scope.row.retryOf === undefined && scope.row.retrySuccessId === undefined" @click.stop="retryExecution(scope.row)" type="text" size="small" title="Retry execution">
-							<font-awesome-icon icon="redo" />
-						</el-button>
+						<el-dropdown trigger="click" @command="handleRetryClick">
+							<span class="el-dropdown-link">
+								<el-button class="retry-button" circle v-if="scope.row.stoppedAt !== undefined && !scope.row.finished && scope.row.retryOf === undefined && scope.row.retrySuccessId === undefined" type="text" size="small" title="Retry execution">
+									<font-awesome-icon icon="redo" />
+								</el-button>
+							</span>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item :command="{command: 'currentlySaved', row: scope.row}">Retry with currently saved workflow</el-dropdown-item>
+								<el-dropdown-item :command="{command: 'original', row: scope.row}">Retry with original workflow</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
 
 					</template>
 				</el-table-column>
@@ -169,6 +189,7 @@ export default mixins(
 			checkAll: false,
 
 			filter: {
+				status: 'ALL',
 				workflowId: 'ALL',
 			},
 
@@ -180,6 +201,24 @@ export default mixins(
 
 			stoppingExecutions: [] as string[],
 			workflows: [] as IWorkflowShortResponse[],
+			statuses: [
+				{
+					id: 'ALL',
+					name: 'Any Status',
+				},
+				{
+					id: 'error',
+					name: 'Error',
+				},
+				{
+					id: 'running',
+					name: 'Running',
+				},
+				{
+					id: 'success',
+					name: 'Success',
+				},
+			],
 
 		};
 	},
@@ -190,8 +229,12 @@ export default mixins(
 		combinedExecutions (): IExecutionsSummary[] {
 			const returnData: IExecutionsSummary[] = [];
 
-			returnData.push.apply(returnData, this.activeExecutions);
-			returnData.push.apply(returnData, this.finishedExecutions);
+			if (['ALL', 'running'].includes(this.filter.status)) {
+				returnData.push.apply(returnData, this.activeExecutions);
+			}
+			if (['ALL', 'error', 'success'].includes(this.filter.status)) {
+				returnData.push.apply(returnData, this.finishedExecutions);
+			}
 
 			return returnData;
 		},
@@ -215,10 +258,20 @@ export default mixins(
 			}
 			return false;
 		},
-		workflowFilter (): IDataObject {
+		workflowFilterCurrent (): IDataObject {
 			const filter: IDataObject = {};
 			if (this.filter.workflowId !== 'ALL') {
 				filter.workflowId = this.filter.workflowId;
+			}
+			return filter;
+		},
+		workflowFilterPast (): IDataObject {
+			const filter: IDataObject = {};
+			if (this.filter.workflowId !== 'ALL') {
+				filter.workflowId = this.filter.workflowId;
+			}
+			if (['error', 'success'].includes(this.filter.status)) {
+				filter.finished = this.filter.status === 'success';
 			}
 			return filter;
 		},
@@ -272,7 +325,7 @@ export default mixins(
 				sendData.ids = Object.keys(this.selectedItems);
 			}
 
-			sendData.filters = this.workflowFilter;
+			sendData.filters = this.workflowFilterPast;
 
 			try {
 				await this.restApi().deleteExecutions(sendData);
@@ -298,6 +351,14 @@ export default mixins(
 		handleFilterChanged () {
 			this.refreshData();
 		},
+		handleRetryClick (commandData: { command: string, row: IExecutionShortResponse }) {
+			let loadWorkflow = false;
+			if (commandData.command === 'currentlySaved') {
+				loadWorkflow = true;
+			}
+
+			this.retryExecution(commandData.row, loadWorkflow);
+		},
 		getRowClass (data: IDataObject): string {
 			const classes: string[] = [];
 			if ((data.row as IExecutionsSummary).stoppedAt === undefined) {
@@ -315,7 +376,7 @@ export default mixins(
 			return workflow.name;
 		},
 		async loadActiveExecutions (): Promise<void> {
-			const activeExecutions = await this.restApi().getCurrentExecutions(this.workflowFilter);
+			const activeExecutions = await this.restApi().getCurrentExecutions(this.workflowFilterCurrent);
 			for (const activeExecution of activeExecutions) {
 				if (activeExecution.workflowId !== undefined && activeExecution.workflowName === undefined) {
 					activeExecution.workflowName = this.getWorkflowName(activeExecution.workflowId);
@@ -325,24 +386,33 @@ export default mixins(
 			this.$store.commit('setActiveExecutions', activeExecutions);
 		},
 		async loadFinishedExecutions (): Promise<void> {
-			const data = await this.restApi().getPastExecutions(this.workflowFilter, this.requestItemsPerRequest);
+			if (this.filter.status === 'running') {
+				this.finishedExecutions = [];
+				this.finishedExecutionsCount = 0;
+				return;
+			}
+			const data = await this.restApi().getPastExecutions(this.workflowFilterPast, this.requestItemsPerRequest);
 			this.finishedExecutions = data.results;
 			this.finishedExecutionsCount = data.count;
 		},
 		async loadMore () {
+			if (this.filter.status === 'running') {
+				return;
+			}
+
 			this.isDataLoading = true;
 
-			const filter = this.workflowFilter;
-			let lastStartedAt: Date | undefined;
+			const filter = this.workflowFilterPast;
+			let lastId: string | number | undefined;
 
 			if (this.finishedExecutions.length !== 0) {
 				const lastItem = this.finishedExecutions.slice(-1)[0];
-				lastStartedAt = lastItem.startedAt as Date;
+				lastId = lastItem.id;
 			}
 
 			let data: IExecutionsListResponse;
 			try {
-				data = await this.restApi().getPastExecutions(filter, this.requestItemsPerRequest, lastStartedAt);
+				data = await this.restApi().getPastExecutions(filter, this.requestItemsPerRequest, lastId);
 			} catch (error) {
 				this.isDataLoading = false;
 				this.$showError(error, 'Problem loading workflows', 'There was a problem loading the workflows:');
@@ -370,7 +440,7 @@ export default mixins(
 				// @ts-ignore
 				workflows.unshift({
 					id: 'ALL',
-					name: 'All',
+					name: 'All Workflows',
 				});
 
 				Vue.set(this, 'workflows', workflows);
@@ -386,11 +456,11 @@ export default mixins(
 			await this.loadWorkflows();
 			await this.refreshData();
 		},
-		async retryExecution (execution: IExecutionShortResponse) {
+		async retryExecution (execution: IExecutionShortResponse, loadWorkflow?: boolean) {
 			this.isDataLoading = true;
 
 			try {
-				const retrySuccessful = await this.restApi().retryExecution(execution.id);
+				const retrySuccessful = await this.restApi().retryExecution(execution.id, loadWorkflow);
 
 				if (retrySuccessful === true) {
 					this.$showMessage({
