@@ -10,7 +10,7 @@
 				<prism-editor v-if="!codeEditDialogVisible" :lineNumbers="true" :readonly="true" :code="displayValue" language="js"></prism-editor>
 			</div>
 
-			<el-input v-else ref="inputField" size="small" :type="getStringInputType" :rows="getArgument('rows')" :value="displayValue" :disabled="isReadOnly" @change="valueChanged" @keydown.stop @focus="setFocus" :title="displayTitle" :placeholder="isValueExpression?'':parameter.placeholder">
+			<el-input v-else v-model="tempValue" ref="inputField" size="small" :type="getStringInputType" :rows="getArgument('rows')" :value="displayValue" :disabled="isReadOnly" @change="valueChanged" @keydown.stop @focus="setFocus" :title="displayTitle" :placeholder="isValueExpression?'':parameter.placeholder">
 				<font-awesome-icon v-if="!isValueExpression && !isReadOnly" slot="suffix" icon="external-link-alt" class="edit-window-button clickable" title="Open Edit Window" @click="displayEditDialog()" />
 			</el-input>
 		</div>
@@ -83,7 +83,7 @@
 
 		<div v-else-if="parameter.type === 'color'" ref="inputField" class="color-input">
 			<el-color-picker :value="displayValue" :disabled="isReadOnly" @change="valueChanged" size="small" class="color-picker" @focus="setFocus" :title="displayTitle" ></el-color-picker>
-			<el-input size="small" type="text" :value="displayValue" :disabled="isReadOnly" @change="valueChanged" @keydown.stop @focus="setFocus" :title="displayTitle" ></el-input>
+			<el-input v-model="tempValue" size="small" type="text" :value="displayValue" :disabled="isReadOnly" @change="valueChanged" @keydown.stop @focus="setFocus" :title="displayTitle" ></el-input>
 		</div>
 
 		<div v-else-if="parameter.type === 'boolean'">
@@ -116,6 +116,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { get } from 'lodash';
 
 import {
 	INodeUi,
@@ -125,6 +126,7 @@ import {
 import {
 	NodeHelpers,
 	NodeParameterValue,
+	INodeParameters,
 	INodePropertyOptions,
 	Workflow,
 } from 'n8n-workflow';
@@ -172,7 +174,7 @@ export default mixins(
 				remoteParameterOptionsLoading: false,
 				remoteParameterOptionsLoadingIssues: null as string | null,
 				textEditDialogVisible: false,
-				tempValue: '', // el-date-picker does not seem to work without v-model so add one
+				tempValue: '', //  el-date-picker and el-input does not seem to work without v-model so add one
 				dateTimePickerOptions: {
 					shortcuts: [
 						{
@@ -205,11 +207,34 @@ export default mixins(
 			};
 		},
 		watch: {
+			dependentParametersValues () {
+				// Reload the remote parameters whenever a parameter
+				// on which the current field depends on changes
+				this.loadRemoteParameterOptions();
+			},
 			value () {
 				this.tempValue = this.displayValue as string;
 			},
 		},
 		computed: {
+			dependentParametersValues (): string | null {
+				const loadOptionsDependsOn = this.getArgument('loadOptionsDependsOn') as string[] | undefined;
+
+				if (loadOptionsDependsOn === undefined) {
+					return null;
+				}
+
+				// Get the resolved parameter values of the current node
+				const currentNodeParameters = this.$store.getters.activeNode.parameters;
+				const resolvedNodeParameters = this.getResolveNodeParameters(currentNodeParameters);
+
+				const returnValues: string[] = [];
+				for (const parameterPath of loadOptionsDependsOn) {
+					returnValues.push(get(resolvedNodeParameters, parameterPath) as string);
+				}
+
+				return returnValues.join('|');
+			},
 			node (): INodeUi | null {
 				if (this.isCredential === true) {
 					return null;
@@ -421,6 +446,21 @@ export default mixins(
 			},
 		},
 		methods: {
+			getResolveNodeParameters (nodeParameters: INodeParameters): INodeParameters {
+				const returnData: INodeParameters = {};
+				for (const key of Object.keys(nodeParameters)) {
+					if (Array.isArray(nodeParameters[key])) {
+						returnData[key] = (nodeParameters[key] as string[]).map(value => {
+							return this.resolveExpression(value as string) as string;
+						});
+					} else if (typeof nodeParameters[key] === 'object') {
+						returnData[key] = this.getResolveNodeParameters(nodeParameters[key] as INodeParameters);
+					} else {
+						returnData[key] = this.resolveExpression(nodeParameters[key] as string);
+					}
+				}
+				return returnData;
+			},
 			async loadRemoteParameterOptions () {
 				if (this.node === null || this.remoteMethod === undefined || this.remoteParameterOptionsLoading) {
 					return;
@@ -429,8 +469,12 @@ export default mixins(
 				this.remoteParameterOptionsLoading = true;
 				this.remoteParameterOptions.length = 0;
 
+				// Get the resolved parameter values of the current node
+				const currentNodeParameters = this.$store.getters.activeNode.parameters;
+				const resolvedNodeParameters = this.getResolveNodeParameters(currentNodeParameters);
+
 				try {
-					const options = await this.restApi().getNodeParameterOptions(this.node.type, this.remoteMethod, this.node.credentials);
+					const options = await this.restApi().getNodeParameterOptions(this.node.type, this.remoteMethod, resolvedNodeParameters, this.node.credentials);
 					this.remoteParameterOptions.push.apply(this.remoteParameterOptions, options);
 				} catch (error) {
 					this.remoteParameterOptionsLoadingIssues = error.message;

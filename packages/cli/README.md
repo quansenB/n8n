@@ -2,9 +2,8 @@
 
 ![n8n.io - Workflow Automation](https://raw.githubusercontent.com/n8n-io/n8n/master/docs/images/n8n-logo.png)
 
-n8n is a free node-based "Open Source" (with Commons Clause)
-Workflow Automation Tool. It can be self-hosted, easily extended, and
-so also used with internal tools.
+n8n is a free and open node based Workflow Automation Tool. It can be
+self-hosted, easily extended, and so also used with internal tools.
 
 <a href="https://raw.githubusercontent.com/n8n-io/n8n/master/docs/images/n8n-screenshot.png"><img src="https://raw.githubusercontent.com/n8n-io/n8n/master/docs/images/n8n-screenshot.png" width="550" alt="n8n.io - Screenshot"></a>
 
@@ -15,9 +14,6 @@ so also used with internal tools.
 - [Demo](#demo)
 - [Available integrations](#available-integrations)
 - [Documentation](#documentation)
-- [Give n8n a spin](#give-n8n-a-spin)
-- [Installation](#installation)
-- [Start](#start)
 - [Create Custom Nodes](#create-custom-nodes)
 - [Hosted n8n](#hosted-n8n)
 - [What does n8n mean and how do you pronounce it](#what-does-n8n-mean-and-how-do-you-pronounce-it)
@@ -36,7 +32,7 @@ Slack notification every time a Github repository received or lost a star.
 
 ## Available integrations
 
-n8n has 50+ different nodes to automate workflows. The list can be found on: [https://n8n.io/nodes](https://n8n.io/nodes)
+n8n has 80+ different nodes to automate workflows. The list can be found on: [https://n8n.io/nodes](https://n8n.io/nodes)
 
 
 ## Documentation

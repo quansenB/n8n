@@ -332,7 +332,11 @@ export class GithubTrigger implements INodeType {
 				return true;
 			},
 			async create(this: IHookFunctions): Promise<boolean> {
-				const webhookUrl = this.getNodeWebhookUrl('default');
+				const webhookUrl = this.getNodeWebhookUrl('default') as string;
+
+				if (webhookUrl.includes('//localhost')) {
+					throw new Error('The Webhook can not work on "localhost". Please, either setup n8n on a custom domain or start with "--tunnel"!');
+				}
 
 				const owner = this.getNodeParameter('owner') as string;
 				const repository = this.getNodeParameter('repository') as string;
@@ -352,13 +356,32 @@ export class GithubTrigger implements INodeType {
 					active: true,
 				};
 
+				const webhookData = this.getWorkflowStaticData('node');
 
 				let responseData;
 				try {
 					responseData = await githubApiRequest.call(this, 'POST', endpoint, body);
 				} catch (e) {
 					if (e.message.includes('[422]:')) {
-						throw new Error('A webhook with the identical URL exists already. Please delete it manually on Github!');
+						// Webhook exists already
+
+						// Get the data of the already registered webhook
+						responseData = await githubApiRequest.call(this, 'GET', endpoint, body);
+
+						for (const webhook of responseData as IDataObject[]) {
+							if ((webhook!.config! as IDataObject).url! === webhookUrl) {
+								// Webhook got found
+								if (JSON.stringify(webhook.events) === JSON.stringify(events)) {
+									// Webhook with same events exists already so no need to
+									// create it again simply save the webhook-id
+									webhookData.webhookId = webhook.id as string;
+									webhookData.webhookEvents = webhook.events as string[];
+									return true;
+								}
+							}
+						}
+
+						throw new Error('A webhook with the identical URL probably exists already. Please delete it manually on Github!');
 					}
 
 					throw e;
@@ -369,7 +392,6 @@ export class GithubTrigger implements INodeType {
 					throw new Error('Github webhook creation response did not contain the expected data.');
 				}
 
-				const webhookData = this.getWorkflowStaticData('node');
 				webhookData.webhookId = responseData.id as string;
 				webhookData.webhookEvents = responseData.events as string[];
 
