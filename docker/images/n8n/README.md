@@ -19,6 +19,7 @@ so also used with internal tools.
 - [Securing n8n](#securing-n8n)
 - [Persist data](#persist-data)
 - [Passing Sensitive Data via File](#passing-sensitive-data-via-file)
+- [Example Setup with Lets Encrypt](#example-setup-with-lets-encrypt)
 - [What does n8n mean and how do you pronounce it](#what-does-n8n-mean-and-how-do-you-pronounce-it)
 - [Support](#support)
 - [Upgrading](#upgrading)
@@ -191,6 +192,31 @@ The following environment variables support file input:
  - DB_POSTGRESDB_USER_FILE
  - N8N_BASIC_AUTH_PASSWORD_FILE
  - N8N_BASIC_AUTH_USER_FILE
+
+
+## Example Setup with Lets Encrypt
+
+A basic step by step example setup of n8n with docker-compose and Lets Encrypt is available on the
+[Server Setup](https://docs.n8n.io/#/server-setup) page.
+
+
+## Setting Timezone
+
+To define the timezone n8n should use, the environment variable `GENERIC_TIMEZONE` can
+be set. This gets used by for example the Cron-Node.
+Apart from that can also the timezone of the system be set separately. Which controls what
+some scripts and commands return like `$ date`. The system timezone can be set via
+the environment variable `TZ`.
+
+Example to use the same timezone for both:
+```
+docker run -it --rm \
+  --name n8n \
+  -p 5678:5678 \
+	-e GENERIC_TIMEZONE="Europe/Berlin" \
+	-e TZ="Europe/Berlin" \
+  n8nio/n8n
+```
 
 
 ## Build Docker-Image

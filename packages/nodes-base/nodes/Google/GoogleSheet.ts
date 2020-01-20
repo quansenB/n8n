@@ -1,6 +1,7 @@
 import { IDataObject } from 'n8n-workflow';
-import { google } from 'googleapis';
+import { google, sheets_v4 } from 'googleapis';
 import { JWT } from 'google-auth-library';
+import { getAuthenticationClient } from './GoogleApi';
 
 const Sheets = google.sheets('v4'); // tslint:disable-line:variable-name
 
@@ -21,6 +22,18 @@ export interface ISheetUpdateData {
 export interface ILookupValues {
 	lookupColumn: string;
 	lookupValue: string;
+}
+
+export interface IToDeleteRange {
+	amount: number;
+	startIndex: number;
+	sheetId: number;
+}
+
+export interface IToDelete {
+	[key: string]: IToDeleteRange[] | undefined;
+	columns?: IToDeleteRange[];
+	rows?: IToDeleteRange[];
 }
 
 export type ValueInputOption = 'RAW' | 'USER_ENTERED';
@@ -44,6 +57,27 @@ export class GoogleSheet {
 	}
 
 
+	/**
+	 * Clears values from a sheet
+	 *
+	 * @param {string} range
+	 * @returns {Promise<object>}
+	 * @memberof GoogleSheet
+	 */
+	async clearData(range: string): Promise<object> {
+		const client = await this.getAuthenticationClient();
+
+		const response = await Sheets.spreadsheets.values.clear(
+			{
+				auth: client,
+				spreadsheetId: this.id,
+				range,
+			}
+		);
+
+		return response.data;
+	}
+
     /**
      * Returns the cell values
      */
@@ -60,6 +94,44 @@ export class GoogleSheet {
 		);
 
 		return response.data.values;
+	}
+
+
+	/**
+	 * Returns the sheets in a Spreadsheet
+	 */
+	async spreadsheetGetSheets() {
+		const client = await this.getAuthenticationClient();
+
+		const response = await Sheets.spreadsheets.get(
+			{
+				auth: client,
+				spreadsheetId: this.id,
+				fields: 'sheets.properties'
+			}
+		);
+
+		return response.data;
+	}
+
+
+	/**
+	 * Sets values in one or more ranges of a spreadsheet.
+	 */
+	async spreadsheetBatchUpdate(requests: sheets_v4.Schema$Request[]) { // tslint:disable-line:no-any
+		const client = await this.getAuthenticationClient();
+
+		const response = await Sheets.spreadsheets.batchUpdate(
+			{
+				auth: client,
+				spreadsheetId: this.id,
+				requestBody: {
+					requests,
+				},
+			}
+		);
+
+		return response.data;
 	}
 
 
@@ -135,18 +207,7 @@ export class GoogleSheet {
      * Returns the authentication client needed to access spreadsheet
      */
 	async getAuthenticationClient(): Promise<JWT> {
-		const client = new google.auth.JWT(
-			this.credentials.email,
-			undefined,
-			this.credentials.privateKey,
-			this.scopes,
-			undefined
-		);
-
-		// TODO: Check later if this or the above should be cached
-		await client.authorize();
-
-		return client;
+		return getAuthenticationClient(this.credentials.email, this.credentials.privateKey, this.scopes);
 	}
 
 
@@ -301,7 +362,7 @@ export class GoogleSheet {
 				// Property exists so add it to the data to update
 
 				// Get the column name in which the property data can be found
-				updateColumnName = String.fromCharCode(characterCode + keyColumnOrder.indexOf(propertyName));
+				updateColumnName = String.fromCharCode(rangeStart.toUpperCase().charCodeAt(0) + keyColumnOrder.indexOf(propertyName));
 
 				updateData.push({
 					range: `${sheet ? sheet + '!' : ''}${updateColumnName}${updateRowIndex}`,
@@ -326,10 +387,11 @@ export class GoogleSheet {
 	 * @param {number} keyRowIndex Index of the row which contains the keys
 	 * @param {number} dataStartRowIndex Index of the first row which contains data
 	 * @param {ILookupValues[]} lookupValues The lookup values which decide what data to return
+	 * @param {boolean} [returnAllMatches] Returns all the found matches instead of only the first one
 	 * @returns {Promise<IDataObject[]>}
 	 * @memberof GoogleSheet
 	 */
-	async lookupValues(inputData: string[][], keyRowIndex: number, dataStartRowIndex: number, lookupValues: ILookupValues[]): Promise<IDataObject[]> {
+	async lookupValues(inputData: string[][], keyRowIndex: number, dataStartRowIndex: number, lookupValues: ILookupValues[], returnAllMatches?: boolean): Promise<IDataObject[]> {
 		const keys: string[] = [];
 
 		if (keyRowIndex < 0 || dataStartRowIndex < keyRowIndex || keyRowIndex >= inputData.length) {
@@ -361,13 +423,18 @@ export class GoogleSheet {
 			for (rowIndex = dataStartRowIndex; rowIndex < inputData.length; rowIndex++) {
 				if (inputData[rowIndex][returnColumnIndex].toString() === lookupValue.lookupValue.toString()) {
 					returnData.push(inputData[rowIndex]);
-					continue lookupLoop;
+
+					if (returnAllMatches !== true) {
+						continue lookupLoop;
+					}
 				}
 			}
 
 			// If value could not be found add an empty one that the order of
 			// the returned items stays the same
-			returnData.push([]);
+			if (returnAllMatches !== true) {
+				returnData.push([]);
+			}
 		}
 
 		return this.structureData(returnData, 1, keys, true);

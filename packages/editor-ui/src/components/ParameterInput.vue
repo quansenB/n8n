@@ -61,8 +61,21 @@
 			</el-option>
 		</el-select>
 
-		<el-select multiple v-else-if="parameter.type === 'multiOptions'" ref="inputField" size="small" :value="displayValue" filterable :disabled="isReadOnly" @change="valueChanged" @keydown.stop @focus="setFocus" :title="displayTitle" >
-			<el-option v-for="option in parameter.options" :value="option.value" :key="option.value" :label="option.name" >
+		<el-select
+			v-else-if="parameter.type === 'multiOptions'"
+			ref="inputField"
+			size="small"
+			filterable
+			multiple
+			:value="displayValue"
+			:loading="remoteParameterOptionsLoading"
+			:disabled="isReadOnly || remoteParameterOptionsLoading"
+			@change="valueChanged"
+			@keydown.stop
+			@focus="setFocus"
+			:title="displayTitle"
+		>
+			<el-option v-for="option in parameterOptions" :value="option.value" :key="option.value" :label="option.name" >
 				<div class="option-headline">{{ option.name }}</div>
 				<div v-if="option.description" class="option-description" v-html="option.description"></div>
 			</el-option>
@@ -306,18 +319,27 @@ export default mixins(
 
 				const issues = NodeHelpers.getParameterIssues(this.parameter, this.node.parameters, newPath.join('.'));
 
-				if (this.parameter.type === 'options' && this.remoteParameterOptionsLoading === false && this.remoteParameterOptionsLoadingIssues === null) {
+				if (['options', 'multiOptions'].includes(this.parameter.type) && this.remoteParameterOptionsLoading === false && this.remoteParameterOptionsLoadingIssues === null) {
 					// Check if the value resolves to a valid option
 					// Currently it only displays an error in the node itself in
 					// case the value is not valid. The workflow can still be executed
 					// and the error is not displayed on the node in the workflow
 					const validOptions = this.parameterOptions!.map((options: INodePropertyOptions) => options.value);
 
-					if (this.displayValue === null || !validOptions.includes(this.displayValue as string)) {
-						if (issues.parameters === undefined) {
-							issues.parameters = {};
+					const checkValues: string[] = [];
+					if (Array.isArray(this.displayValue)) {
+						checkValues.push.apply(checkValues, this.displayValue);
+					} else {
+						checkValues.push(this.displayValue as string);
+					}
+
+					for (const checkValue of checkValues) {
+						if (checkValue === null || !validOptions.includes(checkValue)) {
+							if (issues.parameters === undefined) {
+								issues.parameters = {};
+							}
+							issues.parameters[this.parameter.name] = [`The value "${checkValue}" is not supported!`];
 						}
-						issues.parameters[this.parameter.name] = [`The value "${this.displayValue}" is not supported!`];
 					}
 				} else if (this.remoteParameterOptionsLoadingIssues !== null) {
 					if (issues.parameters === undefined) {
@@ -455,7 +477,7 @@ export default mixins(
 					return;
 				}
 
-				if (this.parameter.type === 'string' && this.getArgument('alwaysOpenEditWindow')) {
+				if (['json', 'string'].includes(this.parameter.type) && this.getArgument('alwaysOpenEditWindow')) {
 					this.displayEditDialog();
 					return;
 				}

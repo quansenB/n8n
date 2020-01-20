@@ -38,7 +38,7 @@ The most important directories:
  - [/packages/editor-ui](/packages/editor-ui) - Vue frontend workflow editor
  - [/packages/node-dev](/packages/node-dev) - Simple CLI to create new n8n-nodes
  - [/packages/nodes-base](/packages/nodes-base) - Base n8n nodes
- - [/packages/worflow](/packages/worflow) - Workflow code with interfaces which
+ - [/packages/workflow](/packages/workflow) - Workflow code with interfaces which
                                             get used by front- & backend
 
 
@@ -80,6 +80,9 @@ npm install -g lerna
 
 
 ### Actual n8n setup
+
+> **IMPORTANT**: All the steps bellow have to get executed at least once to get the development setup up and running!
+
 
 Now that everything n8n requires to run is installed the actual n8n code can be
 checked out and set up:
@@ -207,3 +210,12 @@ cd /data/n8n
 # 3. Start docsificy
 docsify serve ./docs
 ```
+
+
+## Contributor License Agreement
+
+That we do not have any potential problems later it is sadly necessary to sign a [Contributor License Agreement](CONTRIBUTOR_LICENSE_AGREEMENT.md). That can be done literally with the push of a button.
+
+We used the most simple one that exists. It is from [Indie Open Source](https://indieopensource.com/forms/cla) which uses plain English and is literally just a few lines long.
+
+A bot will automatically comment on the pull request once it got opened asking for the agreement to be signed. Before it did not get signed it is sadly not possible to merge it in.
