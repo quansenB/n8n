@@ -627,11 +627,8 @@ export class Xentral implements INodeType {
 					endpoint = '/api/AuftragCreate';
 
 					usesOldApi = true;
-
 					body = {
-						data: JSON.parse(
-							this.getNodeParameter('data', i) as string
-						) as object
+						data: this.getNodeParameter('data', i) as object
 					} as IDataObject;
 				} else if (operation === 'update') {
 					// ----------------------------------
@@ -643,9 +640,7 @@ export class Xentral implements INodeType {
 					usesOldApi = true;
 
 					body = {
-						data: JSON.parse(
-							this.getNodeParameter('data', i) as string
-						) as object
+						data: this.getNodeParameter('data', i) as object
 					} as IDataObject;
 				} else if (operation === 'get') {
 					// ----------------------------------
@@ -657,9 +652,7 @@ export class Xentral implements INodeType {
 					usesOldApi = true;
 
 					body = {
-						data: JSON.parse(
-							this.getNodeParameter('data', i) as string
-						) as object
+						data: this.getNodeParameter('data', i) as object
 					} as IDataObject;
 				} else {
 					throw new Error(`The operation '${operation}' is not known!`);
@@ -704,7 +697,7 @@ export class Xentral implements INodeType {
 				throw new Error(`The resource '${resource}' is not known!`);
 			}
 
-			console.log(usesOldApi)
+			console.log(body)
 			let responseData = null;
 			if (usesOldApi) {
 				responseData = await xentralRequestOldApi.call(
