@@ -697,7 +697,6 @@ export class Xentral implements INodeType {
 				throw new Error(`The resource '${resource}' is not known!`);
 			}
 
-			console.log(body)
 			let responseData = null;
 			if (usesOldApi) {
 				responseData = await xentralRequestOldApi.call(
