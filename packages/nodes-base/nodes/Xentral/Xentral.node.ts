@@ -9,6 +9,24 @@ import {
 
 import { xentralRequestOldApi, xentralRequest } from './GenericFunctions';
 
+function prepareBodyOldApi(body: IDataObject): IDataObject {	
+	for (const property in body) {	
+		if (typeof body[property] === 'object') {	
+			if (body[property] === null) {	
+				body[property] = '';	
+			} else {	
+				const subBody = body[property] as IDataObject;	
+				body[property] = prepareBodyOldApi(subBody);	
+			}	
+		} else if (typeof body[property] === 'boolean') {	
+			body[property] = body[property] ? '1' : '0';	
+		} else if (typeof body[property] === 'number') {	
+			body[property] = body[property]!.toString();	
+		}	
+	}	
+	return body;	
+}
+
 export class Xentral implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Xentral',
@@ -630,6 +648,7 @@ export class Xentral implements INodeType {
 					body = {
 						data: this.getNodeParameter('data', i) as object
 					} as IDataObject;
+					body = prepareBodyOldApi(body);
 				} else if (operation === 'update') {
 					// ----------------------------------
 					//         update
@@ -642,6 +661,7 @@ export class Xentral implements INodeType {
 					body = {
 						data: this.getNodeParameter('data', i) as object
 					} as IDataObject;
+					body = prepareBodyOldApi(body);
 				} else if (operation === 'get') {
 					// ----------------------------------
 					//         get
@@ -654,6 +674,7 @@ export class Xentral implements INodeType {
 					body = {
 						data: this.getNodeParameter('data', i) as object
 					} as IDataObject;
+					body = prepareBodyOldApi(body);
 				} else {
 					throw new Error(`The operation '${operation}' is not known!`);
 				}
