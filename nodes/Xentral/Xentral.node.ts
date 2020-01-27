@@ -1013,10 +1013,9 @@ export class Xentral implements INodeType {
 				);
 			}
 
-
 			returnData.push(responseData as IDataObject);
 		}
 
 		return [this.helpers.returnJsonArray(returnData)];
 	}
-}
+};
