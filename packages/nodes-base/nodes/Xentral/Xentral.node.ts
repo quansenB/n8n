@@ -933,7 +933,7 @@ export class Xentral implements INodeType {
 
 					usesOldApi = false;
 
-					body = JSON.parse(this.getNodeParameter('data', i) as string) as IDataObject;
+					body = this.getNodeParameter('data', i) as IDataObject;
 				} else if (operation === 'update') {
 					// ----------------------------------
 					//         update
@@ -944,7 +944,7 @@ export class Xentral implements INodeType {
 
 					usesOldApi = false;
 
-					body = JSON.parse(this.getNodeParameter('data', i) as string) as IDataObject;
+					body = this.getNodeParameter('data', i) as IDataObject;
 				}
 			} else if (resource === 'rechnungen') {
 				// ----------------------------------
