@@ -9,22 +9,22 @@ import {
 
 import { xentralRequestOldApi, xentralRequest } from './GenericFunctions';
 
-function prepareBodyOldApi(body: IDataObject): IDataObject {	
-	for (const property in body) {	
-		if (typeof body[property] === 'object') {	
-			if (body[property] === null) {	
-				body[property] = '';	
-			} else {	
-				const subBody = body[property] as IDataObject;	
-				body[property] = prepareBodyOldApi(subBody);	
-			}	
-		} else if (typeof body[property] === 'boolean') {	
-			body[property] = body[property] ? '1' : '0';	
-		} else if (typeof body[property] === 'number') {	
-			body[property] = body[property]!.toString();	
-		}	
-	}	
-	return body;	
+function prepareBodyOldApi(body: IDataObject): IDataObject {
+	for (const property in body) {
+		if (typeof body[property] === 'object') {
+			if (body[property] === null) {
+				body[property] = '';
+			} else {
+				const subBody = body[property] as IDataObject;
+				body[property] = prepareBodyOldApi(subBody);
+			}
+		} else if (typeof body[property] === 'boolean') {
+			body[property] = body[property] ? '1' : '0';
+		} else if (typeof body[property] === 'number') {
+			body[property] = body[property]!.toString();
+		}
+	}
+	return body;
 }
 
 export class Xentral implements INodeType {
@@ -34,7 +34,7 @@ export class Xentral implements INodeType {
 		icon: 'file:xentral.png',
 		group: ['transform'],
 		version: 1,
-		description: 'Xentral CRM Node',
+		description: 'Xentral ERP Node',
 		defaults: {
 			name: 'Xentral',
 			color: '#42b8c5'
@@ -64,6 +64,10 @@ export class Xentral implements INodeType {
 					{
 						name: 'Address(v1/v2)',
 						value: 'address'
+					},
+					{
+						name: "Rechnungen(v1)",
+						value: "rechnungen"
 					}
 				],
 				default: 'order',
@@ -605,8 +609,222 @@ export class Xentral implements INodeType {
 				default: 1,
 				required: true,
 				description: 'Data of the address to update.'
-			}
+			},
 
+			// ----------------------------------
+			// 				rechnungen
+			// ----------------------------------
+
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['rechnungen']
+					}
+				},
+				options: [
+					{
+						name: 'Get All (v1)',
+						value: 'getAll',
+						description: 'Rechnungsliste abrufen und Rechnungen suchen'
+					},
+					{
+						name: 'Get by ID (v1)',
+						value: 'getById',
+						description: 'Einzelne Rechnung abrufen'
+					}
+				],
+				default: 'getById',
+				description: 'Rechnungen optionen'
+			},
+
+			// ----------------------------------
+			//         rechnungen: getById
+			// ----------------------------------
+			{
+				displayName: 'ID',
+				name: 'id',
+				type: 'number',
+				displayOptions: {
+					show: {
+						operation: ['getById'],
+						resource: ['rechnungen']
+					}
+				},
+				default: 1,
+				required: true,
+				description: 'Rechnungs-ID'
+			},
+
+			// ----------------------------------
+			//         rechnungen: getAll
+			// ----------------------------------
+			{
+				displayName: 'Query Parameters',
+				name: 'queryParameters',
+				type: 'collection',
+				displayOptions: {
+					show: {
+						operation: ['getAll'],
+						resource: ['rechnungen']
+					}
+				},
+				default: {},
+				required: false,
+				description: 'The query parameters to filter by',
+				placeholder: 'Add Parameter',
+				options: [		
+					{
+						displayName: 'Seitenzahl',
+						name: 'page',
+						type: 'number',
+						default: 1,
+						description: 'Seitenzahl, maximal: 1000'
+					},
+					{
+						displayName: 'Anzahl Ergebnisse',
+						name: 'items',
+						type: 'number',
+						default: 20,
+						description: 'Anzahl der Ergebnisse pro Seite, maximal: 1000'
+					},
+					{
+						displayName: 'Status',
+						name: 'status',
+						type: 'string',
+						default: 'angelegt',
+						description: 'Suche nach Rechnungs-Status (genaue Übereinstimmung)'
+					},
+					{
+						displayName: 'Belegnummer',
+						name: 'belegnr',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Belegnummer (ungefähre Übereinstimmung)'
+					},
+					{
+						displayName: 'Belegnummer Gleicht',
+						name: 'belegnr_equals',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Belegnummer (genaue Übereinstimmung)'
+					},
+					{
+						displayName: 'Belegnummer beginnt mit',
+						name: 'belegnr_startswith',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Belegnummer (Übereinstimmung am Anfang)'
+					},
+					{
+						displayName: 'Belegnummer endet mit',
+						name: 'belegnr_endswith',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Belegnummer (Übereinstimmung am Ende)'
+					},
+					{
+						displayName: 'Kundennummer',
+						name: 'kundennummer',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Kundennummer (ungefähre Übereinstimmung)'
+					},
+					{
+						displayName: 'Kundennummer Gleicht',
+						name: 'kundennummer_equals',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Kundennummer (genaue Übereinstimmung)'
+					},
+					{
+						displayName: 'Kundennummer beginnt mit',
+						name: 'kundennummer_startswith',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Kundennummer (Übereinstimmung am Anfang)'
+					},
+					{
+						displayName: 'Kundennummer endet mit',
+						name: 'kundennummer_endswith',
+						type: 'string',
+						default: '',
+						description: 'Suche nach Kundennummer (Übereinstimmung am Ende)'
+					},
+					{
+						displayName: 'Datum',
+						name: 'datum',
+						type: 'string',
+						default: '',
+						description: 'Suche nach bestimmtem Belegdatum (genaue Übereinstimmung)'
+					},
+					{
+						displayName: 'Datum größer Suchwert',
+						name: 'datum_gt',
+						type: 'string',
+						default: '',
+						description: 'Suche nach bestimmtem Belegdatum (Datum größer Suchwert)'
+					},
+					{
+						displayName: 'Datum größer, gleich Suchwert',
+						name: 'datum_gte',
+						type: 'string',
+						default: '',
+						description: 'Suche nach bestimmtem Belegdatum (Datum größer gleich Suchwert)'
+					},
+					{
+						displayName: 'Datum kleiner Suchwert',
+						name: 'datum_lt',
+						type: 'string',
+						default: '',
+						description: 'Suche nach bestimmtem Belegdatum (Datum kleiner Suchwert)'
+					},
+					{
+						displayName: 'Datum kleiner, gleich Suchwert',
+						name: 'datum_lte',
+						type: 'string',
+						default: '',
+						description: 'Suche nach bestimmtem Belegdatum (Datum kleiner gleich Suchwert)'
+					},
+					{
+						displayName: 'Auftrag',
+						name: 'auftrag',
+						type: 'string',
+						default: '',
+						description: 'Rechnungen nach Auftragsnummer filtern (genaue Übereinstimmung)'
+					},
+					{
+						displayName: 'Auftrag ID',
+						name: 'auftragid',
+						type: 'number',
+						default: 1,
+						description: 'Rechnungen nach Auftrags-ID filtern (genaue Übereinstimmung)'
+					},
+					{
+						displayName: 'Projekt',
+						name: 'projekt',
+						type: 'string',
+						default: '',
+						description: 'Rechnungen eines bestimmten Projekt filtern'
+					},
+					{
+						displayName: 'Sortieren',
+						name: 'sort',
+						type: 'string',
+						default: 'sort=belegnr',
+						description: 'Sortierung (Beispiel: sort=belegnr Verfügbare Felder: belegnr, datum'
+					},
+					{
+						displayName: 'Einschließen',
+						name: 'include',
+						type: 'string',
+						default: '',
+						description: 'Unter-Resourcen in Resource einbinden (Beispiel: include=positionen) Verfügbare Includes: positionen, protokoll'
+					},
+				]
+			}
 		]
 	};
 
@@ -728,6 +946,37 @@ export class Xentral implements INodeType {
 
 					body = JSON.parse(this.getNodeParameter('data', i) as string) as IDataObject;
 				}
+			} else if (resource === 'rechnungen') {
+				// ----------------------------------
+				//         rechnungen
+				// ----------------------------------
+
+				if (operation === 'getById') {
+					// ----------------------------------
+					//         getByID
+					// ----------------------------------
+					requestMethod = 'GET';
+
+					const id = this.getNodeParameter('id', i) as number;
+
+					endpoint = `/api/v1/belege/rechnungen/${id}`;
+
+				} else if (operation === 'getAll') {
+					// ----------------------------------
+					//         getAll
+					// ----------------------------------
+					requestMethod = 'GET';
+
+					const queryParameters = this.getNodeParameter('queryParameters', i) as IDataObject;
+
+					for (const key of Object.keys(queryParameters)) {
+						qs[key] = queryParameters[key];
+					}
+
+					endpoint = '/api/v1/belege/rechnungen'
+
+				}
+
 			} else {
 				throw new Error(`The resource '${resource}' is not known!`);
 			}
@@ -750,10 +999,9 @@ export class Xentral implements INodeType {
 				);
 			}
 
-
 			returnData.push(responseData as IDataObject);
 		}
 
 		return [this.helpers.returnJsonArray(returnData)];
 	}
-}
+};
