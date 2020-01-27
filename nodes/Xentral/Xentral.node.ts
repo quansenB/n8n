@@ -966,11 +966,9 @@ export class Xentral implements INodeType {
 				// ----------------------------------
 
 				if (operation === 'getById') {
-
 					// ----------------------------------
 					//         getByID
 					// ----------------------------------
-
 					requestMethod = 'GET';
 
 					const id = this.getNodeParameter('id', i) as number;
@@ -978,9 +976,6 @@ export class Xentral implements INodeType {
 					endpoint = `/api/v1/belege/rechnungen/${id}`;
 
 				} else if (operation === 'getAll') {
-					// ----------------------------------
-					//         getAll
-					// ----------------------------------
 					requestMethod = 'GET';
 
 					const queryParameters = this.getNodeParameter('queryParameters', i) as IDataObject;
@@ -989,7 +984,7 @@ export class Xentral implements INodeType {
 						qs[key] = queryParameters[key];
 					}
 
-					endpoint = '/api/v1/belege/rechnungen';
+					endpoint = '/api/v1/belege/rechnungen'
 
 				}
 
