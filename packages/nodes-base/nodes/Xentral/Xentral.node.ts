@@ -973,7 +973,7 @@ export class Xentral implements INodeType {
 						qs[key] = queryParameters[key];
 					}
 
-					endpoint = '/api/v1/belege/rechnungen'
+					endpoint = '/api/v1/belege/rechnungen';
 
 				}
 
@@ -1004,4 +1004,4 @@ export class Xentral implements INodeType {
 
 		return [this.helpers.returnJsonArray(returnData)];
 	}
-};
+}
