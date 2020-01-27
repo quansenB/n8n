@@ -1,76 +1,23 @@
 {
-  "name": "n8n-nodes-nordic-nodes",
-  "version": "0.1.8",
-  "author": "Iñaki Breinbauer",
-  "license": "MIT",
-  "description": "Currently contains only the Xentral CRM node",
-  "keywords": [
-    "n8n",
-    "nodemation",
-    "nordic",
-    "nodes",
-    "custom",
-    "xentral",
-    "workflow",
-    "crm"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/quansenB/n8n-nodes-nordic-nodes.git"
-  },
-  "main": "index.js",
+  "name": "n8n",
+  "private": true,
+  "homepage": "https://n8n.io",
   "scripts": {
-    "dev": "npm run watch",
-    "build": "tsc && gulp",
-    "tslint": "tslint -p tsconfig.json -c tslint.json",
-    "watch": "tsc --watch",
-    "test": "jest",
-    "release": "npm run build && npm publish"
-  },
-  "files": [
-    "dist"
-  ],
-  "n8n": {
-    "credentials": [
-      "dist/credentials/Xentral.credentials.js"
-    ],
-    "nodes": [
-      "dist/nodes/Xentral/Xentral.node.js"
-    ]
+    "bootstrap": "lerna bootstrap --hoist --no-ci",
+    "build": "lerna exec npm run build",
+    "dev": "lerna exec npm run dev --parallel",
+    "start": "run-script-os",
+    "start:default": "cd packages/cli/bin && ./n8n",
+    "start:windows": "cd packages/cli/bin && n8n",
+    "test": "lerna run test",
+    "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/node": "^10.10.1",
-    "@types/express": "^4.17.2",
-    "@types/request": "^2.48.3",
-    "@types/request-promise-native": "^1.0.17",
-    "gulp": "^4.0.0",
-    "jest": "^24.9.0",
-    "n8n-workflow": "^0.11.0",
-    "ts-jest": "^24.0.2",
-    "tslint": "^5.17.0",
-    "typescript": "~3.5.2"
+    "lerna": "^3.13.1",
+    "run-script-os": "^1.0.7"
   },
+  "postcss": {},
   "dependencies": {
-    "@types/request": "^2.48.3",
-    "@types/request-promise-native": "^1.0.17",
-    "n8n-core": "^0.10.0"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testURL": "http://localhost/",
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": [
-      "/dist/",
-      "/node_modules/"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ]
+    "n8n-nodes-nordic-nodes": "^0.1.6"
   }
 }

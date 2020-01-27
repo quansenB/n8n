@@ -978,11 +978,9 @@ export class Xentral implements INodeType {
 					endpoint = `/api/v1/belege/rechnungen/${id}`;
 
 				} else if (operation === 'getAll') {
-
 					// ----------------------------------
 					//         getAll
 					// ----------------------------------
-
 					requestMethod = 'GET';
 
 					const queryParameters = this.getNodeParameter('queryParameters', i) as IDataObject;
