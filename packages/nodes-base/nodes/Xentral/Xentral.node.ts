@@ -66,24 +66,24 @@ export class Xentral implements INodeType {
 						value: 'address'
 					},
 					{
-						name: "Rechnungsbeleg(v1)",
-						value: "rechnungen"
+						name: 'Rechnungsbeleg(v1)',
+						value: 'rechnungen'
 					},
 					{
-						name: "Angebotsbeleg(v1)",
-						value: "angebote"
+						name: 'Angebotsbeleg(v1)',
+						value: 'angebote'
 					},
 					{
-						name: "Auftragsbeleg(v1)",
-						value: "auftraege"
+						name: 'Auftragsbeleg(v1)',
+						value: 'auftraege'
 					},
 					{
-						name: "Lieferschein(v1)",
-						value: "lieferscheine"
+						name: 'Lieferschein(v1)',
+						value: 'lieferscheine'
 					},
 					{
-						name: "Gutschrift(v1)",
-						value: "gutschriften"
+						name: 'Gutschrift(v1)',
+						value: 'gutschriften'
 					},
 
 				],
