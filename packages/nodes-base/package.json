@@ -336,6 +336,7 @@
       "dist/nodes/Autopilot/Autopilot.node.js",
       "dist/nodes/Autopilot/AutopilotTrigger.node.js",
       "dist/nodes/Aws/AwsLambda.node.js",
+      "dist/nodes/Aws/AwsLambdaTrigger.node.js",
       "dist/nodes/Aws/AwsSns.node.js",
       "dist/nodes/Aws/AwsSnsTrigger.node.js",
       "dist/nodes/Aws/Comprehend/AwsComprehend.node.js",
